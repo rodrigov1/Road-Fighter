@@ -2,5 +2,11 @@
 
 ## Ing. Software
 
-### Members
-Rodrigo 
+Juego Road-Fighter programado en Python usando PyGame
+
+### Members - *EVIL Corp*
+
+- Rodrigo Vargas
+- Simón Saillen
+- Kevin Bejarano
+- Luigi Pandolfi
