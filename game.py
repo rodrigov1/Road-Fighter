@@ -40,7 +40,7 @@ class Player(pygame.sprite.Sprite):
         elif key == pygame.K_UP:
             self.y_change = -10
         elif key == pygame.K_DOWN:
-            self.y_change = 5
+            self.y_change = 10
 
     def update(self):
         if self.rect.x <= 234.5 and self.x_change == -10:
