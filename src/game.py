@@ -14,6 +14,10 @@ class Game():
         self.all_sprites = pygame.sprite.Group()
         self.opponents = pygame.sprite.Group()
 
+    def reset(self):
+        self.opponents.empty()  # Remove all opponents
+        self.all_sprites.empty()  # Remove all sprites
+
     def game_loop(self):
         player = Player()
         self.all_sprites.add(player)
@@ -70,5 +74,6 @@ RoadFighter = Game()
 start_screen()
 
 while True:
-    if RoadFighter.game_loop():
-        game_over()
+    if RoadFighter.game_loop():  # If the game is over
+        game_over()  # Pass the player to the game_over function
+        RoadFighter.reset()  # Reset the game

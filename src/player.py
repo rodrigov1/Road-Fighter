@@ -31,3 +31,4 @@ class Player(pygame.sprite.Sprite):
             self.rect.y = 0
         elif self.rect.y >= display_height - car_height:
             self.rect.y = display_height - car_height
+    
