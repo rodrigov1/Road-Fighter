@@ -1,8 +1,8 @@
 import pygame
 import random
-from player import Player, display_height, bgImage, gameDisplay
+from player import Player
 from enemy import Enemy
-from screen import start_screen, game_over
+from screen import Screen, display_height, gameDisplay, bgImage
 
 pygame.init()
 pygame.display.set_caption('Road-Fighter')
@@ -13,7 +13,7 @@ class Game():
         self.clock = pygame.time.Clock()
         self.all_sprites = pygame.sprite.Group()
         self.opponents = pygame.sprite.Group()
-
+    
     def reset(self):
         self.opponents.empty()  # Remove all opponents
         self.all_sprites.empty()  # Remove all sprites
@@ -46,10 +46,8 @@ class Game():
                     elif event.key == pygame.K_UP or event.key == pygame.K_DOWN:
                         player.y_change = 0
 
-            gameDisplay.fill((255, 255, 255))
-            gameDisplay.blit(bgImage, (0, 0))
-
             player.update()
+            gameDisplay.blit(bgImage, (0, 0))
             self.opponents.update()
 
             # Generar nuevos obstáculos cuando alguno deje la pantalla
@@ -70,10 +68,10 @@ class Game():
         return False
 
 # Loop principal del juego
+start = Screen()
 RoadFighter = Game()
-start_screen()
 
 while True:
     if RoadFighter.game_loop():  # If the game is over
-        game_over()  # Pass the player to the game_over function
+        start.GameOver()  # Pass the player to the game_over function
         RoadFighter.reset()  # Reset the game

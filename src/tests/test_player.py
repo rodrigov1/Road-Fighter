@@ -2,7 +2,7 @@ import sys
 import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from unittest.mock import Mock, patch,MagicMock
+from unittest.mock import patch, MagicMock
 from player import Player
 
 display_height = 600
@@ -25,7 +25,6 @@ def test_player_init(mock_image_load, mock_Sprite):
     # Verifica que la posición inicial del jugador es correcta
     assert player.rect.x == int(display_width * 0.45)
     assert player.rect.y == int(display_height * 0.8)
-
 
 def test_player_update():
     # Create an instance of Player
