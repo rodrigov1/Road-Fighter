@@ -3,3 +3,4 @@ vscode/
 myenv/
 .vscode/settings.json
 src/tests/__pycache__
+src/__pycache__

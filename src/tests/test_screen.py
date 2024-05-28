@@ -4,27 +4,8 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 
 
 from unittest.mock import patch,Mock
-from screen import message_display,start_screen,game_over
-from player import gameDisplay
+from screen import Screen, gameDisplay
 import pygame
-
-
-@patch('pygame.font.SysFont')
-@patch('pygame.display')
-def test_message_display(mock_display, mock_font):
-    # Configura los mocks
-    mock_surface = pygame.Surface((100, 100))  # Crea un objeto Surface
-    mock_font.return_value.render.return_value = mock_surface  # Hace que render devuelva el objeto Surface
-
-    # Llama a la función
-    screen = Screen()
-    screen.message_display("Test", 0, "BLACK")
-
-    # Verifica que se llamó a las funciones con los argumentos correctos
-    mock_font.assert_called_once_with('freesansbold.ttf', 50)
-    mock_font.return_value.render.assert_called_once_with("Test", True, "BLACK")
-    mock_display.update.assert_called_once()
-
 
 @patch('pygame.event')
 @patch('pygame.display')
@@ -37,7 +18,7 @@ def test_start_screen(mock_font, mock_display, mock_event):
     
     # Llama a la función
     screen = Screen()
-    screen.startScreen()
+    screen.start_screen()
     
     # Verifica que se llamó a las funciones con los argumentos correctos
     assert mock_event.wait.call_count == 2

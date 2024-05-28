@@ -69,10 +69,10 @@ class Game():
 
 # Loop principal del juego
 start = Screen()
-start.startScreen()
+start.start_screen()
 RoadFighter = Game()
 
 while True:
     if RoadFighter.game_loop():  # If the game is over
-        start.GameOver()  # Pass the player to the game_over function
+        start.game_over()  # Pass the player to the game_over function
         RoadFighter.reset()  # Reset the game
