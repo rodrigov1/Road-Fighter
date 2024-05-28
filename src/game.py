@@ -69,6 +69,7 @@ class Game():
 
 # Loop principal del juego
 start = Screen()
+start.startScreen()
 RoadFighter = Game()
 
 while True:

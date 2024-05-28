@@ -6,10 +6,9 @@ import pytest
 from unittest.mock import Mock, patch
 from enemy import Enemy
 
-@patch('enemy.pygame.sprite.Sprite')
 @patch('enemy.pygame.image')
 @patch('enemy.random.choice')
-def test_enemy_initialization(mock_choice, mock_image, mock_sprite):
+def test_enemy_initialization(mock_choice, mock_image):
     # Mock the random.choice function
     mock_choice.side_effect = [248, 3]
 

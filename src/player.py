@@ -1,6 +1,9 @@
 import pygame
 from screen import display_height, display_width
 
+car_width = 56
+car_height = 100
+        
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
@@ -12,8 +15,6 @@ class Player(pygame.sprite.Sprite):
         self.y_change = 0
 
     def update(self):
-        car_width = 56
-        car_height = 100
         self.rect.x += self.x_change
         self.rect.y += self.y_change
 

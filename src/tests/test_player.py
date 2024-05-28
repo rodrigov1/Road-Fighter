@@ -3,16 +3,11 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from unittest.mock import patch, MagicMock
-from player import Player
+from player import Player, car_width, car_height
+from screen import display_height, display_width
 
-display_height = 600
-display_width = 800
-car_width = 56
-car_height = 100
-
-@patch('pygame.sprite.Sprite')
 @patch('pygame.image.load')
-def test_player_init(mock_image_load, mock_Sprite):
+def test_player_init(mock_image_load):
     # Configura los mocks
     mock_image_load.return_value.get_rect.return_value = MagicMock()
 
