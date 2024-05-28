@@ -1,29 +1,27 @@
 import pygame
-from screen import display_height, display_width
+from screen import (
+    ROAD_RIGHT_BORDER,
+    ROAD_LEFT_BORDER,
+)
+
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load("images/car_player.png")
+    def __init__(self, posX, posY, speed):
+        super().__init__()
+        self.image = pygame.image.load("../sprites/player.png").convert_alpha()
         self.rect = self.image.get_rect()
-        self.rect.x = (int(display_width * 0.45))
-        self.rect.y = (int(display_height * 0.8))
-        self.x_change = 0
-        self.y_change = 0
+        self.posX = posX
+        self.posY = posY
+        self.speed = speed
+        self.rect.center = [self.posX, self.posY]
 
-    def update(self):
-        car_width = 56
-        car_height = 100
-        self.rect.x += self.x_change
-        self.rect.y += self.y_change
+    def update(self, direction):
+        if direction == "right":
+            if self.posX < ROAD_RIGHT_BORDER:
+                self.posX += self.speed
 
-        if self.rect.x <= 234:
-            self.rect.x = 234
-        elif self.rect.x >= 556 - car_width:
-            self.rect.x = 556 - car_width
+        if direction == "left":
+            if self.posX > ROAD_LEFT_BORDER:
+                self.posX -= self.speed
 
-        if self.rect.y <= 0:
-            self.rect.y = 0
-        elif self.rect.y >= display_height - car_height:
-            self.rect.y = display_height - car_height
-    
+        self.rect.center = [self.posX, self.posY]
