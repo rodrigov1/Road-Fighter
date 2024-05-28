@@ -1,77 +1,99 @@
 import pygame
-import random
 from player import Player
-from enemy import Enemy
-from screen import Screen, display_height, gameDisplay, bgImage
+from enemy import EnemyFactory
 
-pygame.init()
-pygame.display.set_caption('Road-Fighter')
 
-class Game():
-    def __init__(self):
-        self.gameExit = False
-        self.clock = pygame.time.Clock()
-        self.all_sprites = pygame.sprite.Group()
-        self.opponents = pygame.sprite.Group()
-    
-    def reset(self):
-        self.opponents.empty()  # Remove all opponents
-        self.all_sprites.empty()  # Remove all sprites
+class Game:
 
-    def game_loop(self):
-        player = Player()
-        self.all_sprites.add(player)
-        
+    def initPlayerGroup(self):
+        # Posicion centrada
+        player = Player(400, 600, 5)
+        playerGroup = pygame.sprite.Group()
+        playerGroup.add(player)
+        return playerGroup
+
+    def initEnemiesGroup(self):
+        enemiesGroup = pygame.sprite.Group()
         for _ in range(5):
-            opponent = Enemy()
-            self.all_sprites.add(opponent)
-            self.opponents.add(opponent)
+            enemy_type = "Yellow"
+            enemy = EnemyFactory.create_enemy(enemy_type)
+            enemiesGroup.add(enemy)
+        return enemiesGroup
 
-        while not self.gameExit:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    self.gameExit = True
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_LEFT:
-                        player.x_change = -10
-                    elif event.key == pygame.K_RIGHT:
-                        player.x_change = 10
-                    elif event.key == pygame.K_UP:
-                        player.y_change = -10
-                    elif event.key == pygame.K_DOWN:
-                        player.y_change = 10
-                if event.type == pygame.KEYUP:
-                    if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
-                        player.x_change = 0
-                    elif event.key == pygame.K_UP or event.key == pygame.K_DOWN:
-                        player.y_change = 0
+    def catchControllerEvents(self, road, playerSprite, enemiesGroup):
+        keys = pygame.key.get_pressed()
+        playPressed = False
+        accelerated = False
 
-            player.update()
-            gameDisplay.blit(bgImage, (0, 0))
-            self.opponents.update()
+        if keys[pygame.K_ESCAPE]:
+            pygame.quit()
 
-            # Generar nuevos obstáculos cuando alguno deje la pantalla
-            for opponent in self.opponents:
-                if opponent.rect.y > display_height:
-                    opponent.rect.x = random.choice((248,332,420,500))
-                    opponent.rect.y = -100
-                    opponent.speed = random.choice((3, 4, 5, 6, 7, 8))
+        if keys[pygame.K_RETURN]:
+            playPressed = True
 
-            # Verificar colisiones
-            if pygame.sprite.spritecollide(player, self.opponents, False):
-                return True
+        if keys[pygame.K_LEFT]:
+            playerSprite.update("left")
 
-            self.all_sprites.draw(gameDisplay)
-            pygame.display.update()
-            self.clock.tick(60)
+        if keys[pygame.K_RIGHT]:
+            playerSprite.update("right")
 
-        return False
+        if keys[pygame.K_z]:
+            road.update(20)
+            enemiesGroup.update(5)
+            accelerated = True
+        else:
+            enemiesGroup.update(-5)
 
-# Loop principal del juego
-start = Screen()
-RoadFighter = Game()
+        return playPressed, accelerated
 
-while True:
-    if RoadFighter.game_loop():  # If the game is over
-        start.GameOver()  # Pass the player to the game_over function
-        RoadFighter.reset()  # Reset the game
+    def catchCollisions(self, playerSprite, enemiesGroup):
+        collision = pygame.sprite.spritecollide(playerSprite, enemiesGroup, False)
+        return collision
+
+    def catchEvents(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+
+    def runGame(self, screen, clock, playerGroup, enemiesGroup, road):
+        # Player sprite is the only sprite from playerGroup
+        playerSprite = playerGroup.sprites()[0]
+
+        # Incialize variables
+        gameRunning = False
+        gameOver = False
+        distance = 0
+        fuel = 100
+
+        while True:
+            # Frame inicialization
+            screen.fill((0, 0, 0))
+            clock.tick(60)
+
+            # Events and controller
+            self.catchEvents()
+            playPressed, accelerated = self.catchControllerEvents(
+                road, playerSprite, enemiesGroup
+            )
+
+            # Start
+            if playPressed and not gameRunning:
+                gameRunning = True
+
+            # Gameplay
+            if gameRunning and not gameOver:
+
+                # In Acceleration
+                if accelerated:
+                    distance += 1
+                    fuel -= 0.05
+
+                # Draw objects
+                road.draw()
+                enemiesGroup.draw(screen)
+                playerGroup.draw(screen)
+
+                # Game collisions
+                gameOver = self.catchCollisions(playerSprite, enemiesGroup)
+
+            pygame.display.flip()
