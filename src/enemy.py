@@ -8,7 +8,7 @@ class EnemyFactory:
     @staticmethod
     def create_enemy(enemy_type):
         if enemy_type == "Yellow":
-            return Enemy(StillMovement(), "../images/yellow_enemy.png")
+            return Enemy(StillMovement(), "images/yellow_enemy.png")
         # elif enemy_type == "Blue":
         #     return Enemy(RandomMovement(), "../images/blue_enemy.png")
         else:

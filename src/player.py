@@ -1,10 +1,10 @@
 import pygame
-from screen import display_height, display_width
+from screen import ROAD_LEFT_BORDER, ROAD_RIGHT_BORDER
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, posX, posY, speed):
         super().__init__()
-        self.image = pygame.image.load("../images/player.png").convert_alpha()
+        self.image = pygame.image.load("images/player.png").convert_alpha()
         self.rect = self.image.get_rect()
         self.posX = posX
         self.posY = posY

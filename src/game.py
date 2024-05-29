@@ -4,7 +4,6 @@ from enemy import EnemyFactory
 
 
 class Game:
-
     def initPlayerGroup(self):
         # Posicion centrada
         player = Player(400, 600, 5)

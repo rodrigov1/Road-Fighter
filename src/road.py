@@ -8,7 +8,7 @@ class Road:
     def __init__(self, display):
         self.speed = 0
         self.display = display
-        self.image = pygame.image.load("../images/road.png").convert()
+        self.image = pygame.image.load("images/road.png").convert()
 
     def update(self, speed):
         self.speed += speed
