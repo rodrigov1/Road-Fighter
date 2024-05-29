@@ -2,13 +2,16 @@ import pygame
 from player import Player
 from enemy import EnemyFactory
 
-
 class Game:
+    def __init__(self):
+        pass
+    
     def initPlayerGroup(self):
         # Posicion centrada
         player = Player(400, 600, 5)
         playerGroup = pygame.sprite.Group()
         playerGroup.add(player)
+        
         return playerGroup
 
     def initEnemiesGroup(self):
@@ -22,15 +25,17 @@ class Game:
     def refreshEnemies(self, frame_count, enemiesGroup):
         if frame_count % 300 == 0:
             new_enemies = self.initEnemiesGroup()
+            
             for enemy in new_enemies:
                 enemiesGroup.add(enemy)
+                
         return enemiesGroup
 
     def catchControllerEvents(self, road, playerSprite, enemiesGroup):
         keys = pygame.key.get_pressed()
         playPressed = False
         accelerated = False
-
+        
         if keys[pygame.K_ESCAPE]:
             pygame.quit()
 
@@ -54,7 +59,8 @@ class Game:
 
     def catchCollisions(self, playerSprite, enemiesGroup):
         collision = pygame.sprite.spritecollide(playerSprite, enemiesGroup, False)
-        return collision
+        
+        return collision != []
 
     def catchEvents(self):
         for event in pygame.event.get():
@@ -72,7 +78,7 @@ class Game:
         fuel = 100
 
         #Frame count
-        frame_count=0
+        frame_count = 0
 
         while True:
             # Frame inicialization
@@ -90,8 +96,8 @@ class Game:
                 gameRunning = True
 
             # Refresh
-            enemiesGroup=self.refreshEnemies(frame_count, enemiesGroup)
-            frame_count+=1
+            enemiesGroup = self.refreshEnemies(frame_count, enemiesGroup)
+            frame_count += 1
 
             # Gameplay
             if gameRunning and not gameOver:
@@ -108,6 +114,7 @@ class Game:
 
                 # Game collisions
                 gameOver = self.catchCollisions(playerSprite, enemiesGroup)
-
+            else :
+                return False
 
             pygame.display.flip()

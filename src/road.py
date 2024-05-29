@@ -1,8 +1,5 @@
 import pygame
-
-
-DISPLAY_HEIGHT = 800
-
+from screen import DISPLAY_HEIGHT
 
 class Road:
     def __init__(self, display):

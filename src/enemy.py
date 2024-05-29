@@ -3,7 +3,6 @@ import random
 from strategy import StillMovement
 from screen import ROAD_LEFT_BORDER, ROAD_RIGHT_BORDER
 
-
 class EnemyFactory:
     @staticmethod
     def create_enemy(enemy_type):
@@ -13,7 +12,6 @@ class EnemyFactory:
         #     return Enemy(RandomMovement(), "../images/blue_enemy.png")
         else:
             raise ValueError(f"Unknown enemy type: {enemy_type}")
-
 
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, movement_strategy, image_path):

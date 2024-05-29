@@ -10,8 +10,10 @@ DISPLAY_HEIGHT = 800
 DISPLAY_WIDTH = 1200
 DISPLAY = pygame.display.set_mode((DISPLAY_WIDTH, DISPLAY_HEIGHT))
 
-
 class Screen:
+    def __init__(self):
+        pass
+    
     def startEngine(self):
         # Title window and icon
         pygame.init()
@@ -19,26 +21,30 @@ class Screen:
         clock = pygame.time.Clock()
         icon = pygame.image.load("images/car-icon.png")
         pygame.display.set_icon(icon)
+        
         return DISPLAY, clock
-
-    def displayScreen(self, typeScreen):
-        if typeScreen == "screenStart":
-            menu_image = pygame.image.load("images/start_menu2.png")
-        elif typeScreen == "screenEnd":
-            menu_image = pygame.image.load("images/game_over_menu.png")
-
+    
+    def startScreen(self):
         menu_image = pygame.image.load("images/start_menu2.png")
+        self.displayScreen(menu_image)
+        
+    def endScreen(self):
+        menu_image = pygame.image.load("images/game_over_menu.png")
+        self.displayScreen(menu_image)
+        
+    def displayScreen(self, menu_image):
         # Dibuja la imagen en la pantalla
         DISPLAY.blit(menu_image, (0, 0))
+        
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT or (
-                    event.type == pygame.KEYDOWN and event.key == pygame.K_q
-                ):
+                    event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
                     pygame.quit()
                     exit()
-                elif event.type == pygame.KEYDOWN:
+                elif event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
                     return
                 else:
                     continue
+                
             pygame.display.update()

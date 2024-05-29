@@ -9,7 +9,7 @@ class Player(pygame.sprite.Sprite):
         self.posX = posX
         self.posY = posY
         self.speed = speed
-        self.rect.center = [self.posX, self.posY]
+        self.rect.center = (posX, posY)
 
     def update(self, direction):
         #Deberiamos implementar esto?
@@ -23,4 +23,4 @@ class Player(pygame.sprite.Sprite):
             if self.posX > ROAD_LEFT_BORDER:
                 self.posX -= self.speed
         
-        self.rect.center = [self.posX, self.posY]
+        self.rect.center = (self.posX, self.posY)

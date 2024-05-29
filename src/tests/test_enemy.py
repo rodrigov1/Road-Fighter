@@ -5,7 +5,8 @@ import pytest
 from unittest.mock import Mock, patch
 from enemy import Enemy
 """
-@patch('enemy.pygame.sprite.Sprite')
+@patch('e
+nemy.pygame.sprite.Sprite')
 @patch('enemy.pygame.image')
 @patch('enemy.random.choice')
 def test_enemy_initialization(mock_choice, mock_image):
