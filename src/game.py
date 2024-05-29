@@ -19,6 +19,13 @@ class Game:
             enemy = EnemyFactory.create_enemy(enemy_type)
             enemiesGroup.add(enemy)
         return enemiesGroup
+    
+    def refreshEnemies(self, frame_count, enemiesGroup):
+        if frame_count % 300 == 0:
+            new_enemies = self.initEnemiesGroup()
+            for enemy in new_enemies:
+                enemiesGroup.add(enemy)
+        return enemiesGroup
 
     def catchControllerEvents(self, road, playerSprite, enemiesGroup):
         keys = pygame.key.get_pressed()
@@ -59,11 +66,14 @@ class Game:
         # Player sprite is the only sprite from playerGroup
         playerSprite = playerGroup.sprites()[0]
 
-        # Incialize variables
+        # Inicialize variables
         gameRunning = False
         gameOver = False
         distance = 0
         fuel = 100
+
+        #Frame count
+        frame_count=0
 
         while True:
             # Frame inicialization
@@ -80,6 +90,10 @@ class Game:
             if playPressed and not gameRunning:
                 gameRunning = True
 
+            # Refresh
+            enemiesGroup=self.refreshEnemies(frame_count, enemiesGroup)
+            frame_count+=1
+
             # Gameplay
             if gameRunning and not gameOver:
 
@@ -95,5 +109,6 @@ class Game:
 
                 # Game collisions
                 gameOver = self.catchCollisions(playerSprite, enemiesGroup)
+
 
             pygame.display.flip()
