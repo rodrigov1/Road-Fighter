@@ -1,9 +1,9 @@
 import pygame
 import random
-from strategy import StillMovement
+from strategy import ZigZagMovement, StillMovement
 from screen import ROAD_LEFT_BORDER, ROAD_RIGHT_BORDER
 
-class EnemyFactory:
+class EnemyFactory():
     @staticmethod
     def create_enemy(enemy_type):
         if enemy_type == "Yellow":
