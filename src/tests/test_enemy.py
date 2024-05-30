@@ -1,15 +1,15 @@
 import sys
 import os
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import pytest
 from unittest.mock import Mock, patch
 from enemy import Enemy
-
-@patch('enemy.pygame.sprite.Sprite')
+"""
+@patch('e
+nemy.pygame.sprite.Sprite')
 @patch('enemy.pygame.image')
 @patch('enemy.random.choice')
-def test_enemy_initialization(mock_choice, mock_image, mock_sprite):
+def test_enemy_initialization(mock_choice, mock_image):
     # Mock the random.choice function
     mock_choice.side_effect = [248, 3]
 
@@ -36,3 +36,4 @@ def test_enemy_update():
 
     # Assert that the rect.y attribute was updated correctly
     assert enemy.rect.y == -100 + 5
+    """

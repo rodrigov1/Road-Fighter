@@ -1,66 +1,59 @@
-import sys
-import os
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-from unittest.mock import patch, MagicMock
+import pytest
+from unittest.mock import Mock, patch
 from player import Player
 
-display_height = 600
-display_width = 800
-car_width = 56
-car_height = 100
+# Constants for testing
+ROAD_RIGHT_BORDER = 580
+ROAD_LEFT_BORDER = 240
 
-@patch('pygame.sprite.Sprite')
-@patch('pygame.image.load')
-def test_player_init(mock_image_load, mock_Sprite):
-    # Configura los mocks
-    mock_image_load.return_value.get_rect.return_value = MagicMock()
+#Creo el Mock del escenario
+@pytest.fixture
+def player():
+    with patch('pygame.image.load') as mock_load:
+        mock_load.return_value = Mock()  # Mock the image returned by pygame
+        return Player(250, 300, 10)
 
-    # Crea una instancia de Player
-    player = Player()
+def test_player_initialization(player):
+    assert player.posX == 250
+    assert player.posY == 300
+    assert player.speed == 10
+    assert player.rect.center == [250, 300]
 
-    # Verifica que se llamó a image.load con los argumentos correctos
-    mock_image_load.assert_called_once_with('images/car_player.png')
+def test_player_move_right_within_bounds(player):
+    player.update("right")
+    assert player.posX == 260
+    assert player.rect.center == [260, 300]
 
-    # Verifica que la posición inicial del jugador es correcta
-    assert player.rect.x == int(display_width * 0.45)
-    assert player.rect.y == int(display_height * 0.8)
+#Compruebo si la posicion no cambia cuando estoy en el borde derecho
+def test_player_move_right_outside_bounds(player):
+    player.posX = ROAD_RIGHT_BORDER
+    player.update("right")
+    assert player.posX == ROAD_RIGHT_BORDER
+    assert player.rect.center == [ROAD_RIGHT_BORDER, 300]
 
-def test_player_update():
-    # Create an instance of Player
-    player = Player()
+def test_player_move_left_within_bounds(player):
+    player.update("left")
+    assert player.posX == 240
+    assert player.rect.center == [240, 300]
 
-    # Set the initial x_change and y_change
-    player.x_change = 10
-    player.y_change = 20
+#Compruebo si la posicion no cambia cuando estoy en el borde izquierdo
+def test_player_move_left_outside_bounds(player):
+    player.posX = ROAD_LEFT_BORDER
+    player.update("left")
+    assert player.posX == ROAD_LEFT_BORDER
+    assert player.rect.center == [ROAD_LEFT_BORDER, 300]
 
-    # Call the update method
-    player.update()
+def test_player_update_method_calls(player):
+    #Mockeo el metodo update para contar cuantas veces se llama
+    player.update = Mock(wraps=player.update)  
+    player.update("right")
+    assert player.update.call_count == 1
 
-    # Assert that the rect attributes were updated correctly
-    assert player.rect.x == int(display_width * 0.45) + 10
-    assert player.rect.y == int(display_height * 0.8) + 20
+    player.update("left")
+    assert player.update.call_count == 2
 
-def test_player_update_boundary_conditions():
-    # Create an instance of Player
-    player = Player()
-
-    # Test left boundary
-    player.x_change = -1000
-    player.update()
-    assert player.rect.x == 234
-
-    # Test right boundary
-    player.x_change = 1000
-    player.update()
-    assert player.rect.x == 556 - car_width
-
-    # Test top boundary
-    player.y_change = -1000
-    player.update()
-    assert player.rect.y == 0
-
-    # Test bottom boundary
-    player.y_change = 1000
-    player.update()
-    assert player.rect.y == display_height - car_height
+#La posicion no deberia cambiar si la direccion es invalida
+def test_player_update_invalid_direction(player):
+    original_posX = player.posX
+    player.update("invalid_direction")
+    assert player.posX == original_posX 
