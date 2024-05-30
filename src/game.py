@@ -1,4 +1,5 @@
 import pygame
+import random
 from player import Player
 from enemy import EnemyFactory
 
@@ -17,9 +18,10 @@ class Game:
     def initEnemiesGroup(self):
         enemiesGroup = pygame.sprite.Group()
         for _ in range(5):
-            enemy_type = "Yellow"
+            enemy_type = random.choice(["Yellow", "Blue"])
             enemy = EnemyFactory.create_enemy(enemy_type)
             enemiesGroup.add(enemy)
+            
         return enemiesGroup
     
     def refreshEnemies(self, frame_count, enemiesGroup):
