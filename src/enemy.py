@@ -26,5 +26,8 @@ class Enemy(pygame.sprite.Sprite):
         self.speed = 0
 
     def update(self, speed):
+        #reviso que speed no sea tipo None
+        if speed is None:
+            raise ValueError("Speed cannot be None")
         self.speed = speed
         self.movement_strategy.move(self)

@@ -1,10 +1,7 @@
 import pytest
 from unittest.mock import Mock, patch
 from player import Player
-
-# Constants for testing
-ROAD_RIGHT_BORDER = 580
-ROAD_LEFT_BORDER = 240
+from screen import ROAD_LEFT_BORDER, ROAD_RIGHT_BORDER
 
 #Creo el Mock del escenario
 @pytest.fixture
