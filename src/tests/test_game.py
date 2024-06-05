@@ -8,10 +8,12 @@ from game import Game
 def game():
     return Game()
 
+
 @patch('pygame.sprite.Group')
 def test_initPlayerGroup(mock_group, game):
     playerGroup = game.initPlayerGroup()
     assert mock_group.called
+
 
 @patch('pygame.sprite.Group')
 @patch('game.EnemyFactory.create_enemy')
@@ -20,6 +22,7 @@ def test_initEnemiesGroup(mock_create_enemy, mock_group, game):
     enemiesGroup = game.initEnemiesGroup()
     assert mock_group.called
     assert mock_create_enemy.call_count == 5
+
 
 @patch('game.Game.initEnemiesGroup')
 def test_refreshEnemies(mock_initEnemiesGroup, game):
@@ -58,6 +61,7 @@ def test_catchControllerEvents_escape(mock_quit, mock_get_pressed, game):
     game.catchControllerEvents(Mock(), Mock(), Mock())
     mock_quit.assert_called_once()
 
+
 @patch('pygame.key.get_pressed')
 def test_catchControllerEvents_return(mock_get_pressed, game):
     keys = {K_ESCAPE: 0, K_RETURN: 1, K_LEFT: 0, K_RIGHT: 0, K_z: 0}
@@ -65,6 +69,7 @@ def test_catchControllerEvents_return(mock_get_pressed, game):
     playPressed, accelerated = game.catchControllerEvents(Mock(), Mock(), Mock())
     assert playPressed
     assert not accelerated
+
 
 @patch('pygame.key.get_pressed')
 def test_catchControllerEvents_left(mock_get_pressed, game):
@@ -74,6 +79,7 @@ def test_catchControllerEvents_left(mock_get_pressed, game):
     game.catchControllerEvents(Mock(), mock_playerSprite, Mock())
     mock_playerSprite.update.assert_called_once_with("left")
 
+
 @patch('pygame.key.get_pressed')
 def test_catchControllerEvents_right(mock_get_pressed, game):
     keys = {K_ESCAPE: 0, K_RETURN: 0, K_LEFT: 0, K_RIGHT: 1, K_z: 0}
@@ -82,6 +88,7 @@ def test_catchControllerEvents_right(mock_get_pressed, game):
     game.catchControllerEvents(Mock(), mock_playerSprite, Mock())
     mock_playerSprite.update.assert_called_once_with("right")
 
+
 @patch('pygame.key.get_pressed')
 def test_catchControllerEvents_z(mock_get_pressed, game):
     keys = {K_ESCAPE: 0, K_RETURN: 0, K_LEFT: 0, K_RIGHT: 0, K_z: 1}
@@ -89,7 +96,6 @@ def test_catchControllerEvents_z(mock_get_pressed, game):
     playPressed, accelerated = game.catchControllerEvents(Mock(), Mock(), Mock())
     assert not playPressed
     assert accelerated
-
 
 
 @patch('pygame.display.flip')
