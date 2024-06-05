@@ -7,9 +7,9 @@ class EnemyFactory():
     @staticmethod
     def create_enemy(enemy_type):
         if enemy_type == "Yellow":
-            return Enemy(StillMovement(), "images/yellow_car.png")
+            return Enemy(StillMovement(), "src/images/yellow_car.png")
         elif enemy_type == "Blue":
-            return Enemy(ZigZagMovement(), "images/blue_car.png")
+            return Enemy(ZigZagMovement(), "src/images/blue_car.png")
         else:
             raise ValueError(f"Unknown enemy type: {enemy_type}")
 
