@@ -1,6 +1,7 @@
 import pygame
 from screen import ROAD_LEFT_BORDER, ROAD_RIGHT_BORDER
 
+
 class Player(pygame.sprite.Sprite):
     def __init__(self, posX, posY, speed):
         super().__init__()
@@ -12,7 +13,7 @@ class Player(pygame.sprite.Sprite):
         self.rect.center = (posX, posY)
 
     def update(self, direction):
-        #Deberiamos implementar esto?
+        # Deberiamos implementar esto?
         # if direction == None :
         #    return -1
         if direction == "right":
@@ -22,5 +23,10 @@ class Player(pygame.sprite.Sprite):
         if direction == "left":
             if self.posX > ROAD_LEFT_BORDER:
                 self.posX -= self.speed
-        
+
         self.rect.center = (self.posX, self.posY)
+
+    def check_powerUp(self, powerup):
+        # Check if player collided with powerup, if so, return True
+        hit = pygame.sprite.spritecollide(self, powerup, True)
+        return len(hit) > 0
