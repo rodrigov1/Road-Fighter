@@ -16,10 +16,10 @@ if __name__ == "__main__":
 
         while True:
             road_fighter.runGame(
-                display, clock, playerGroup, enemiesGroup, powerUpGroup, road
+                display, clock, playerGroup, 
+                enemiesGroup, powerUpGroup, road
             )
             screen.endScreen()
             Start()
 
     Start()
-

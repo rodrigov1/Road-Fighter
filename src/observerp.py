@@ -1,11 +1,9 @@
 from abc import ABC, abstractmethod
 
-
 class Subscriber(ABC):
     @abstractmethod
     def updateSub(self):
         raise NotImplementedError("This method should be overridden by subclasses")
-
 
 class Publisher:
     def __init__(self):

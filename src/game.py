@@ -5,49 +5,40 @@ from enemy import EnemyFactory
 from powerup import PowerUp
 from observerp import Publisher
 
-
 class Game(Publisher):
     def __init__(self):
         super().__init__()
 
     def initPowerUpGroup(self):
-        powerup = PowerUp()
         powerUpGroup = pygame.sprite.Group()
-        powerUpGroup.add(powerup)
         return powerUpGroup
 
     def initPlayerGroup(self):
-        # Posicion centrada
         player = Player(400, 600, 5)
         playerGroup = pygame.sprite.Group()
         playerGroup.add(player)
+        
         return playerGroup
 
     def initEnemiesGroup(self):
         enemiesGroup = pygame.sprite.Group()
-        for _ in range(3):
-            enemy_type = random.choice(["Yellow", "Blue"])
-            enemy = EnemyFactory.create_enemy(enemy_type)
-            enemiesGroup.add(enemy)
-            self.subscribe(enemy)
-
         return enemiesGroup
 
     def refreshEnemies(self, frame_count, enemiesGroup):
-        if frame_count % 500 == 0:
-            new_enemies = self.initEnemiesGroup()
-
-            for enemy in new_enemies:
+        if frame_count % 150 == 0:
+            for _ in range(4):
+                enemy_type = random.choice(["Yellow", "Blue"])
+                enemy = EnemyFactory.create_enemy(enemy_type)
                 enemiesGroup.add(enemy)
+                self.subscribe(enemy)
 
         return enemiesGroup
 
     def refreshPowerUps(self, frame_count, powerUpGroup):
-        if (
-            frame_count % 1800 == 0
-        ):  # Add new power-up every 1800 frames (30 seconds at 60 FPS)
-            new_powerup = self.initPowerUpGroup()
+        if (frame_count % 900 == 0):  # Add new power-up every 900 frames (15 seconds at 60 FPS)
+            new_powerup = PowerUp()
             powerUpGroup.add(new_powerup)
+            
         return powerUpGroup
 
     def catchControllerEvents(self, road, playerSprite, enemiesGroup, powerUpGroup):
@@ -79,8 +70,10 @@ class Game(Publisher):
 
     def catchCollisions(self, playerSprite, enemiesGroup, powerUpGroup):
         collision = pygame.sprite.spritecollide(playerSprite, enemiesGroup, False)
+        
         if playerSprite.check_powerUp(powerUpGroup):
             self.notify()  # Notify all subscribers that a power-up has been collected
+            
         return collision != []
 
     def catchEvents(self):
@@ -99,7 +92,7 @@ class Game(Publisher):
         fuel = 100
 
         # Frame count
-        frame_count = 0
+        frame_count = 1
 
         while True:
             # Frame inicialization
@@ -137,8 +130,8 @@ class Game(Publisher):
 
                 # Game collisions
                 gameOver = self.catchCollisions(
-                    playerSprite, enemiesGroup, powerUpGroup
-                )
+                    playerSprite, enemiesGroup, powerUpGroup)
+                
             else:
                 return False
 
