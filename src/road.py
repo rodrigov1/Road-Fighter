@@ -1,6 +1,7 @@
 import pygame
 from screen import DISPLAY_HEIGHT
 
+
 class Road:
     def __init__(self, display):
         self.speed = 0

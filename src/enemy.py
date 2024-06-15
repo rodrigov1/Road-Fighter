@@ -1,9 +1,11 @@
 import pygame
 import random
+from observerp import Subscriber
 from strategy import ZigZagMovement, StillMovement
 from screen import ROAD_LEFT_BORDER, ROAD_RIGHT_BORDER
 
-class EnemyFactory():
+
+class EnemyFactory:
     @staticmethod
     def create_enemy(enemy_type):
         if enemy_type == "Yellow":
@@ -13,7 +15,8 @@ class EnemyFactory():
         else:
             raise ValueError(f"Unknown enemy type: {enemy_type}")
 
-class Enemy(pygame.sprite.Sprite):
+
+class Enemy(Subscriber, pygame.sprite.Sprite):
     def __init__(self, movement_strategy, image_path):
         super().__init__()
         self.image = pygame.image.load(image_path).convert_alpha()
@@ -26,8 +29,12 @@ class Enemy(pygame.sprite.Sprite):
         self.speed = 0
 
     def update(self, speed):
-        #reviso que speed no sea tipo None
+        # reviso que speed no sea tipo None
         if speed is None:
             raise ValueError("Speed cannot be None")
         self.speed = speed
+        self.movement_strategy.move(self)
+
+    def updateSub(self):
+        self.movement_strategy = StillMovement()
         self.movement_strategy.move(self)
