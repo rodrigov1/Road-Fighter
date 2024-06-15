@@ -9,7 +9,7 @@ from screen import ROAD_LEFT_BORDER, ROAD_RIGHT_BORDER
 def enemy(): 
     with patch('pygame.image.load') as mock_load:
         mock_load.return_value = Mock()  # Mock the image returned by pygame
-        return Enemy(StillMovement(), "images/yellow_car.png")
+        return Enemy(StillMovement(), Mock())
 
 
 def test_enemy_initialization(enemy):
