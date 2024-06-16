@@ -13,6 +13,7 @@ if __name__ == "__main__":
         enemiesGroup = road_fighter.initEnemiesGroup()
         powerUpGroup = road_fighter.initPowerUpGroup()
         screen.startScreen()
+        
 
         while True:
             road_fighter.runGame(

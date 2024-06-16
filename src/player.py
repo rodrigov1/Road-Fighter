@@ -11,18 +11,16 @@ class Player(pygame.sprite.Sprite):
         self.speed = speed
         self.rect.center = (posX, posY)
 
-    def update(self, direction):
-        # Deberiamos implementar esto?
-        # if direction == None :
-        #    return -1
-        # SIMON: no creo
-        if direction == "right":
-            if self.posX < ROAD_RIGHT_BORDER:
-                self.posX += self.speed
-
-        if direction == "left":
-            if self.posX > ROAD_LEFT_BORDER:
-                self.posX -= self.speed
+    def update(self, direction):  
+        match direction:
+            case "right":
+                if self.posX < ROAD_RIGHT_BORDER:
+                    self.posX += self.speed
+            case "left":
+                if self.posX > ROAD_LEFT_BORDER:
+                    self.posX -= self.speed
+            case _:
+                pass
 
         self.rect.center = (self.posX, self.posY)
 

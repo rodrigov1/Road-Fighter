@@ -24,11 +24,13 @@ class Game(Publisher):
         enemiesGroup = pygame.sprite.Group()
         return enemiesGroup
 
-    def refreshEnemies(self, frame_count, enemiesGroup):
+    def refreshEnemies(self, frame_count, enemiesGroup, Frozen):
         if frame_count % 150 == 0:
             for _ in range(4):
                 enemy_type = random.choice(["Yellow", "Blue"])
                 enemy = EnemyFactory.create_enemy(enemy_type)
+                if Frozen:
+                    enemy.updateSub("Freeze")
                 enemiesGroup.add(enemy)
                 self.subscribe(enemy)
 
@@ -68,19 +70,28 @@ class Game(Publisher):
 
         return playPressed, accelerated
 
-    def catchCollisions(self, playerSprite, enemiesGroup, powerUpGroup):
+    def catchCollisions(self, playerSprite, enemiesGroup):
         collision = pygame.sprite.spritecollide(playerSprite, enemiesGroup, False)
         
-        if playerSprite.check_powerUp(powerUpGroup):
-            self.notify()  # Notify all subscribers that a power-up has been collected
-            
         return collision != []
 
     def catchEvents(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-
+                
+    def catchPowerUp(self, playerSprite, powerUpGroup, Road):
+        if playerSprite.check_powerUp(powerUpGroup):
+            Road.Freeze(True)
+            self.notify("Freeze")
+            Freeze = True
+            Frozen_Time = 600
+        else:
+            Freeze = False
+            Frozen_Time = 0
+            
+        return Freeze, Frozen_Time
+    
     def runGame(self, screen, clock, playerGroup, enemiesGroup, powerUpGroup, road):
         # Player sprite is the only sprite from playerGroup
         playerSprite = playerGroup.sprites()[0]
@@ -90,6 +101,8 @@ class Game(Publisher):
         gameOver = False
         distance = 0
         fuel = 100
+        Frozen = False
+        Frozen_Time = 0
 
         # Frame count
         frame_count = 1
@@ -111,7 +124,7 @@ class Game(Publisher):
 
             # Refresh
             powerUpGroup = self.refreshPowerUps(frame_count, powerUpGroup)
-            enemiesGroup = self.refreshEnemies(frame_count, enemiesGroup)
+            enemiesGroup = self.refreshEnemies(frame_count, enemiesGroup, Frozen)
             frame_count += 1
 
             # Gameplay
@@ -130,8 +143,20 @@ class Game(Publisher):
 
                 # Game collisions
                 gameOver = self.catchCollisions(
-                    playerSprite, enemiesGroup, powerUpGroup)
+                    playerSprite, enemiesGroup)
                 
+                # Frozen Time Power Up Effects
+                if not Frozen:
+                    Frozen, Frozen_Time = self.catchPowerUp(playerSprite, powerUpGroup, road)
+                    
+                if Frozen:
+                    Frozen_Time -= 1
+                    
+                    if Frozen_Time <= 0:
+                        road.Freeze(False)
+                        self.notify("Reset")
+                        Frozen = False
+                        
             else:
                 return False
 
