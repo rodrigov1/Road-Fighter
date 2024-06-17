@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 
 class Subscriber(ABC):
     @abstractmethod
-    def updateSub(self):
+    def updateSub(self, powerup):
         raise NotImplementedError("This method should be overridden by subclasses")
 
 
