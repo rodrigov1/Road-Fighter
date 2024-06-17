@@ -11,11 +11,11 @@ class EnemyFactory:
     def create_enemy(enemy_type):
         match enemy_type:
             case "Yellow":
-                return Enemy(StillMovement(), "images/yellow_car.png", "Yellow")
+                return Enemy(StillMovement(), "../images/yellow_car.png", "Yellow")
             case "Blue":
-                return Enemy(ZigZagMovement(), "images/blue_car.png", "Blue")
+                return Enemy(ZigZagMovement(), "../images/blue_car.png", "Blue")
             case "Rainbow":
-                return Enemy(ZigZagMovement(), "images/rainbow_car.png", "Rainbow")
+                return Enemy(ZigZagMovement(), "../images/rainbow_car.png", "Rainbow")
             case _:
                 raise ValueError(f"Unknown enemy type: {enemy_type}")
 
@@ -47,32 +47,32 @@ class Enemy(Subscriber, pygame.sprite.Sprite):
                 if self.type == "Blue":
                     self.movement_strategy = StillMovement()
                     self.image = pygame.image.load(
-                        "images/frozen/frozen_blue_car.png"
+                        "../images/frozen/frozen_blue_car.png"
                     ).convert_alpha()
                 else:
                     self.image = pygame.image.load(
-                        "images/frozen/frozen_yellow_car.png"
+                        "../images/frozen/frozen_yellow_car.png"
                     ).convert_alpha()
 
             case "Heat":
                 if self.type == "Blue":
                     self.image = pygame.image.load(
-                        "images/hot/grey_blue_car.png"
+                        "../images/hot/grey_blue_car.png"
                     ).convert_alpha()
                 else:
                     self.image = pygame.image.load(
-                        "images/hot/grey_yellow_car.png"
+                        "../images/hot/grey_yellow_car.png"
                     ).convert_alpha()
 
             case "Reset":
                 if self.type == "Blue":
                     self.movement_strategy = ZigZagMovement()
                     self.image = pygame.image.load(
-                        "images/blue_car.png"
+                        "../images/blue_car.png"
                     ).convert_alpha()
                 else:
                     self.image = pygame.image.load(
-                        "images/yellow_car.png"
+                        "../images/yellow_car.png"
                     ).convert_alpha()
 
             case _:
