@@ -7,7 +7,6 @@ class MovementStrategy:
     def move(self, enemy):
         raise NotImplementedError("This method should be overridden by subclasses")
 
-# TODO: Still not implemented the blue car which uses random movement
 class RandomMovement(MovementStrategy):
     def move(self, enemy):
         enemy.rect.y += enemy.speed

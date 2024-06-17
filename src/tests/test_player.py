@@ -10,16 +10,25 @@ def player():
         mock_load.return_value = Mock()  # Mock the image returned by pygame
         return Player(250, 300, 10)
 
+
 def test_player_initialization(player):
     assert player.posX == 250
     assert player.posY == 300
     assert player.speed == 10
     assert player.rect.center == (250, 300)
+<<<<<<< HEAD
+=======
+
+>>>>>>> 1dc9c718005fbd6362a92137478b4fafa2e710ca
 
 def test_player_move_right_within_bounds(player):
     player.update("right")
     assert player.posX == 260
     assert player.rect.center == (260, 300)
+<<<<<<< HEAD
+=======
+
+>>>>>>> 1dc9c718005fbd6362a92137478b4fafa2e710ca
 
 #Compruebo si la posicion no cambia cuando estoy en el borde derecho
 def test_player_move_right_outside_bounds(player):
@@ -27,11 +36,19 @@ def test_player_move_right_outside_bounds(player):
     player.update("right")
     assert player.posX == ROAD_RIGHT_BORDER
     assert player.rect.center == (ROAD_RIGHT_BORDER, 300)
+<<<<<<< HEAD
+=======
+
+>>>>>>> 1dc9c718005fbd6362a92137478b4fafa2e710ca
 
 def test_player_move_left_within_bounds(player):
     player.update("left")
     assert player.posX == 240
     assert player.rect.center == (240, 300)
+<<<<<<< HEAD
+=======
+
+>>>>>>> 1dc9c718005fbd6362a92137478b4fafa2e710ca
 
 #Compruebo si la posicion no cambia cuando estoy en el borde izquierdo
 def test_player_move_left_outside_bounds(player):
@@ -39,6 +56,10 @@ def test_player_move_left_outside_bounds(player):
     player.update("left")
     assert player.posX == ROAD_LEFT_BORDER
     assert player.rect.center == (ROAD_LEFT_BORDER, 300)
+<<<<<<< HEAD
+=======
+
+>>>>>>> 1dc9c718005fbd6362a92137478b4fafa2e710ca
 
 def test_player_update_method_calls(player):
     #Mockeo el metodo update para contar cuantas veces se llama
@@ -48,6 +69,7 @@ def test_player_update_method_calls(player):
 
     player.update("left")
     assert player.update.call_count == 2
+
 
 #La posicion no deberia cambiar si la direccion es invalida
 def test_player_update_invalid_direction(player):
