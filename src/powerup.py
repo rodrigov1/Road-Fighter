@@ -8,9 +8,9 @@ class PowerUpFactory:
     def create_powerup(powerup_type):
         match powerup_type:
             case "Blue":
-                return PowerUp("images/blue_truck.png", "Blue")
+                return PowerUp("../images/blue_truck.png", "Blue")
             case "Pink":
-                return PowerUp("images/pink_truck.png", "Pink")
+                return PowerUp("../images/pink_truck.png", "Pink")
             case _:
                 raise ValueError(f"Unknown powerup type: {powerup_type}")
 
