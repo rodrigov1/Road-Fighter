@@ -16,9 +16,12 @@ class Road:
         self.display.blit(self.image, (0, self.newSpeed - self.image.get_rect().height))
         if self.newSpeed < DISPLAY_HEIGHT:
             self.display.blit(self.image, (0, self.newSpeed))
-            
-    def Freeze(self, condition):
-        if condition:
-            self.image = pygame.image.load("images/frozen/frozen_road_2.png").convert()
-        else:
-            self.image = pygame.image.load("images/road.png").convert()
+    
+    def changeRoad(self, mode):
+        match mode:
+            case "Freeze":
+                self.image = pygame.image.load("images/frozen/frozen_road_2.png").convert()
+            case "Heat":
+                self.image = pygame.image.load("images/hot/hot_road.png").convert()
+            case "Reset":
+                self.image = pygame.image.load("images/road.png").convert()

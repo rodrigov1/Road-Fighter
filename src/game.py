@@ -2,7 +2,7 @@ import pygame
 import random
 from player import Player
 from enemy import EnemyFactory
-from powerup import PowerUp
+from powerup import PowerUpFactory
 from observerp import Publisher
 
 class Game(Publisher):
@@ -23,27 +23,46 @@ class Game(Publisher):
     def initEnemiesGroup(self):
         enemiesGroup = pygame.sprite.Group()
         return enemiesGroup
+    
+    def initLivesGroup(self):
+        livesGroup = pygame.sprite.Group()
+        return livesGroup
 
-    def refreshEnemies(self, frame_count, enemiesGroup, Frozen):
+    def refreshEnemies(self, frame_count, enemiesGroup, Frozen, Limitless):
         if frame_count % 150 == 0:
             for _ in range(4):
                 enemy_type = random.choice(["Yellow", "Blue"])
                 enemy = EnemyFactory.create_enemy(enemy_type)
                 if Frozen:
                     enemy.updateSub("Freeze")
+                if Limitless:
+                    enemy.updateSub("Heat")
                 enemiesGroup.add(enemy)
                 self.subscribe(enemy)
 
         return enemiesGroup
 
-    def refreshPowerUps(self, frame_count, powerUpGroup):
+    def refreshPowerUps(self, frame_count, FreezePU, LimitlessPU):
         if (frame_count % 900 == 0):  # Add new power-up every 900 frames (15 seconds at 60 FPS)
-            new_powerup = PowerUp()
-            powerUpGroup.add(new_powerup)
+            power = random.choice(["Blue", "Pink"])
+            new_powerup = PowerUpFactory.create_powerup(power)
             
-        return powerUpGroup
+            match power:
+                case "Blue":
+                    FreezePU.add(new_powerup)
+                case "Pink":
+                    LimitlessPU.add(new_powerup)
 
-    def catchControllerEvents(self, road, playerSprite, enemiesGroup, powerUpGroup):
+        return FreezePU, LimitlessPU
+    
+    def refreshLives(self, frame_count, livesGroup):
+        if (frame_count % 1200 == 0):
+            live = EnemyFactory.create_enemy("Rainbow")
+            livesGroup.add(live)
+        
+        return livesGroup
+
+    def catchControllerEvents(self, road, playerSprite, enemiesGroup, FreezePU, LimitlessPU, livesGroup):
         keys = pygame.key.get_pressed()
         playPressed = False
         accelerated = False
@@ -63,7 +82,9 @@ class Game(Publisher):
         if keys[pygame.K_z]:
             road.update(20)
             enemiesGroup.update(5)
-            powerUpGroup.update()
+            FreezePU.update()
+            LimitlessPU.update()
+            livesGroup.update(5)
             accelerated = True
         else:
             enemiesGroup.update(-5)
@@ -71,7 +92,7 @@ class Game(Publisher):
         return playPressed, accelerated
 
     def catchCollisions(self, playerSprite, enemiesGroup):
-        collision = pygame.sprite.spritecollide(playerSprite, enemiesGroup, False)
+        collision = pygame.sprite.spritecollide(playerSprite, enemiesGroup, True)
         
         return collision != []
 
@@ -80,9 +101,11 @@ class Game(Publisher):
             if event.type == pygame.QUIT:
                 pygame.quit()
                 
-    def catchPowerUp(self, playerSprite, powerUpGroup, Road):
-        if playerSprite.check_powerUp(powerUpGroup):
-            Road.Freeze(True)
+    def catchFrozenPU(self, playerSprite, powerUpGroup, Road, Lives):
+        if playerSprite.check_PowerUp(powerUpGroup):
+            playerSprite.change_car("Blue")
+            playerSprite.health(Lives)
+            Road.changeRoad("Freeze")
             self.notify("Freeze")
             Freeze = True
             Frozen_Time = 600
@@ -92,17 +115,32 @@ class Game(Publisher):
             
         return Freeze, Frozen_Time
     
-    def runGame(self, screen, clock, playerGroup, enemiesGroup, powerUpGroup, road):
+    def catchLimitlessPU(self, playerSprite, powerUpGroup, Road):
+        if playerSprite.check_PowerUp(powerUpGroup):
+            playerSprite.change_car("Pink")
+            Road.changeRoad("Heat")
+            self.notify("Heat")
+            Limitless = True
+            Invincible_Time = 600
+        else:
+            Limitless = False
+            Invincible_Time = 0
+            
+        return Limitless, Invincible_Time
+    
+    def runGame(self, screen, clock, playerGroup, enemiesGroup, FrozenPowerUp, LimitlessPowerUp, livesGroup, road):
         # Player sprite is the only sprite from playerGroup
         playerSprite = playerGroup.sprites()[0]
 
         # Inicialize variables
         gameRunning = False
-        gameOver = False
         distance = 0
         fuel = 100
         Frozen = False
         Frozen_Time = 0
+        Lives = 3
+        Limitless = False
+        Invincible_Time = 0
 
         # Frame count
         frame_count = 1
@@ -115,20 +153,21 @@ class Game(Publisher):
             # Events and controller
             self.catchEvents()
             playPressed, accelerated = self.catchControllerEvents(
-                road, playerSprite, enemiesGroup, powerUpGroup
-            )
+                road, playerSprite,
+                enemiesGroup, FrozenPowerUp, LimitlessPowerUp, livesGroup)
 
             # Start
             if playPressed and not gameRunning:
                 gameRunning = True
 
             # Refresh
-            powerUpGroup = self.refreshPowerUps(frame_count, powerUpGroup)
-            enemiesGroup = self.refreshEnemies(frame_count, enemiesGroup, Frozen)
+            FrozenPowerUp, LimitlessPowerUp = self.refreshPowerUps(frame_count, FrozenPowerUp, LimitlessPowerUp)
+            enemiesGroup = self.refreshEnemies(frame_count, enemiesGroup, Frozen, Limitless)
+            livesGroup = self.refreshLives(frame_count, livesGroup)
             frame_count += 1
 
             # Gameplay
-            if gameRunning and not gameOver:
+            if gameRunning and Lives > 0:
 
                 # In Acceleration
                 if accelerated:
@@ -139,24 +178,52 @@ class Game(Publisher):
                 road.draw()
                 enemiesGroup.draw(screen)
                 playerGroup.draw(screen)
-                powerUpGroup.draw(screen)
+                FrozenPowerUp.draw(screen)
+                LimitlessPowerUp.draw(screen)
+                livesGroup.draw(screen)
 
                 # Game collisions
-                gameOver = self.catchCollisions(
-                    playerSprite, enemiesGroup)
+                Crash = self.catchCollisions(playerSprite, enemiesGroup)
+                
+                Rainbow_Car_Crash = self.catchCollisions(playerSprite, livesGroup)
+                
+                if Rainbow_Car_Crash:
+                    Lives += 1
+                    if Lives > 3:
+                        Lives = 3
+                    playerSprite.health(Lives)
+                    
+                if Crash and not Limitless:
+                    Lives -= 1
+                    playerSprite.health(Lives)
                 
                 # Frozen Time Power Up Effects
                 if not Frozen:
-                    Frozen, Frozen_Time = self.catchPowerUp(playerSprite, powerUpGroup, road)
+                    Frozen, Frozen_Time = self.catchFrozenPU(playerSprite, FrozenPowerUp, road, Lives)
                     
                 if Frozen:
                     Frozen_Time -= 1
                     
                     if Frozen_Time <= 0:
-                        road.Freeze(False)
+                        playerSprite.change_car("Reset")
+                        playerSprite.health(Lives)
+                        road.changeRoad("Reset")
                         self.notify("Reset")
                         Frozen = False
                         
+                if not Limitless:
+                    Limitless, Invincible_Time = self.catchLimitlessPU(playerSprite, LimitlessPowerUp, road)
+                    
+                if Limitless:
+                    Invincible_Time -= 1
+                    
+                    if Invincible_Time <= 0:
+                        playerSprite.change_car("Reset")
+                        road.changeRoad("Reset")
+                        self.notify("Reset")
+                        Lives = 3
+                        Limitless = False
+                    
             else:
                 return False
 
