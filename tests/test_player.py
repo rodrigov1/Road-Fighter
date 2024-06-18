@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import Mock, patch
 from player import Player
 from screen import ROAD_LEFT_BORDER, ROAD_RIGHT_BORDER
-
+import pygame
 
 # Creo el Mock del escenario
 @pytest.fixture
@@ -11,6 +11,11 @@ def player():
         mock_load.return_value = Mock()  # Mock the image returned by pygame
         return Player(250, 300, 10)
 
+# Fixture para inicializar pygame con un modo de video
+@pytest.fixture(scope="session", autouse=True)
+def init_pygame():
+    pygame.init()
+    pygame.display.set_mode((800, 600))  # Establecer un modo de video válido
 
 def test_player_initialization(player):
     assert player.posX == 250
@@ -62,3 +67,23 @@ def test_player_update_invalid_direction(player):
     original_posX = player.posX
     player.update("invalid_direction")
     assert player.posX == original_posX
+
+def test_player_update_health():
+    # Crear instancia de Player
+    player = Player(250, 300, 10)
+
+    # Ejecutar el método updateHealth
+    player.updateHealth(2)
+
+    # Comprobar que la imagen se actualizó correctamente
+    assert player.image is not None
+
+def test_player_update_color_on_powerup(player):
+    player.updateSub("Frozen")
+    assert player.color == "Blue"
+
+    player.updateSub("Limitless")
+    assert player.color == "Pink"
+
+    player.updateSub("Reset")
+    assert player.color == "Red"
