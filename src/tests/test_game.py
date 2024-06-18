@@ -8,19 +8,11 @@ from game import Game
 def game():
     return Game()
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 1dc9c718005fbd6362a92137478b4fafa2e710ca
 @patch('pygame.sprite.Group')
 def test_initPlayerGroup(mock_group, game):
     playerGroup = game.initPlayerGroup()
     assert mock_group.called
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 1dc9c718005fbd6362a92137478b4fafa2e710ca
 @patch('pygame.sprite.Group')
 @patch('game.EnemyFactory.create_enemy')
 def test_initEnemiesGroup(mock_create_enemy, mock_group, game):
@@ -29,10 +21,6 @@ def test_initEnemiesGroup(mock_create_enemy, mock_group, game):
     assert mock_group.called
     assert mock_create_enemy.call_count == 5
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 1dc9c718005fbd6362a92137478b4fafa2e710ca
 @patch('game.Game.initEnemiesGroup')
 def test_refreshEnemies(mock_initEnemiesGroup, game):
     mock_initEnemiesGroup.return_value = [Mock(), Mock(), Mock(), Mock(), Mock()]       #Creo el mock de un grupo de enemigos
@@ -70,10 +58,6 @@ def test_catchControllerEvents_escape(mock_quit, mock_get_pressed, game):
     game.catchControllerEvents(Mock(), Mock(), Mock())
     mock_quit.assert_called_once()
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 1dc9c718005fbd6362a92137478b4fafa2e710ca
 @patch('pygame.key.get_pressed')
 def test_catchControllerEvents_return(mock_get_pressed, game):
     keys = {K_ESCAPE: 0, K_RETURN: 1, K_LEFT: 0, K_RIGHT: 0, K_z: 0}
@@ -82,10 +66,6 @@ def test_catchControllerEvents_return(mock_get_pressed, game):
     assert playPressed
     assert not accelerated
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 1dc9c718005fbd6362a92137478b4fafa2e710ca
 @patch('pygame.key.get_pressed')
 def test_catchControllerEvents_left(mock_get_pressed, game):
     keys = {K_ESCAPE: 0, K_RETURN: 0, K_LEFT: 1, K_RIGHT: 0, K_z: 0}
@@ -94,10 +74,6 @@ def test_catchControllerEvents_left(mock_get_pressed, game):
     game.catchControllerEvents(Mock(), mock_playerSprite, Mock())
     mock_playerSprite.update.assert_called_once_with("left")
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 1dc9c718005fbd6362a92137478b4fafa2e710ca
 @patch('pygame.key.get_pressed')
 def test_catchControllerEvents_right(mock_get_pressed, game):
     keys = {K_ESCAPE: 0, K_RETURN: 0, K_LEFT: 0, K_RIGHT: 1, K_z: 0}
@@ -106,10 +82,6 @@ def test_catchControllerEvents_right(mock_get_pressed, game):
     game.catchControllerEvents(Mock(), mock_playerSprite, Mock())
     mock_playerSprite.update.assert_called_once_with("right")
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 1dc9c718005fbd6362a92137478b4fafa2e710ca
 @patch('pygame.key.get_pressed')
 def test_catchControllerEvents_z(mock_get_pressed, game):
     keys = {K_ESCAPE: 0, K_RETURN: 0, K_LEFT: 0, K_RIGHT: 0, K_z: 1}
@@ -119,10 +91,7 @@ def test_catchControllerEvents_z(mock_get_pressed, game):
     assert accelerated
 
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 1dc9c718005fbd6362a92137478b4fafa2e710ca
 @patch('pygame.display.flip')
 @patch('pygame.time.Clock')
 #Metodos de la clase game
