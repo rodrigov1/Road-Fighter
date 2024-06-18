@@ -37,7 +37,7 @@ class Game(Publisher):
 
     def refreshEnemies(self, frame_count, enemiesGroup, Frozen, Limitless):
         if frame_count % 150 == 0:
-            for _ in range(12 if Limitless else 4):
+            for _ in range(8 if Limitless else 4):
                 enemy_type = random.choice(["Yellow", "Blue"])
                 enemy = EnemyFactory.create_enemy(enemy_type)
                 enemiesGroup.add(enemy)
