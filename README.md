@@ -3,7 +3,7 @@
 Juego basado en Road-Fighter programado en Python usando PyGame.
 
 <div id = "photo" align = "center">
-    <img src="images/road_fighter_title.png" width="250px"/>
+    <img src="images/Road_Fighter_Title.png" width="250px"/>
 </div>
 
 ## Materia: *Ingenieria del Software*
