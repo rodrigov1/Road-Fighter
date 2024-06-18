@@ -1,13 +1,13 @@
 import pytest
 from pygame import K_ESCAPE, K_RETURN, K_LEFT, K_RIGHT, K_z
 from unittest.mock import Mock, patch,MagicMock,call
-from game import Game
+from src.game import Game
 import pygame
-from player import Player
-from enemy import EnemyFactory,StillMovement,ZigZagMovement
-from observerp import Subscriber,Publisher
-from enemy import Enemy
-from powerup import PowerUpFactory
+from src.player import Player
+from src.enemy import EnemyFactory,StillMovement,ZigZagMovement
+from src.observerp import Subscriber,Publisher
+from src.enemy import Enemy
+from src.powerup import PowerUpFactory
 from itertools import cycle
 # Fixture para inicializar el objeto Game
 @pytest.fixture

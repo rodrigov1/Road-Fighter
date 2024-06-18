@@ -1,14 +1,14 @@
 import pytest
 from unittest.mock import Mock, patch
-from enemy import Enemy, EnemyFactory
-from strategy import StillMovement, ZigZagMovement
-from screen import ROAD_LEFT_BORDER, ROAD_RIGHT_BORDER
+from src.enemy import Enemy, EnemyFactory
+from src.strategy import StillMovement, ZigZagMovement
+from src.screen import ROAD_LEFT_BORDER, ROAD_RIGHT_BORDER
 
 @pytest.fixture
 def enemy():
     with patch("pygame.image.load") as mock_load:
         mock_load.return_value = Mock()  # Mock the image returned by pygame
-        return Enemy(StillMovement(), "../../images/yellow_car.png", "Yellow")
+        return Enemy(StillMovement(), "../images/yellow_car.png", "Yellow")
 
 def test_enemy_initialization(enemy):
     assert enemy.posX >= ROAD_LEFT_BORDER

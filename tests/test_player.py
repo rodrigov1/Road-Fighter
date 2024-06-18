@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import Mock, patch
-from player import Player
-from screen import ROAD_LEFT_BORDER, ROAD_RIGHT_BORDER
+from src.player import Player
+from src.screen import ROAD_LEFT_BORDER, ROAD_RIGHT_BORDER
 import pygame
 
 # Creo el Mock del escenario
