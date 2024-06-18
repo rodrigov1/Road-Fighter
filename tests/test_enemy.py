@@ -26,20 +26,24 @@ def test_enemy_update(enemy):
     assert enemy.speed == 10
     assert enemy.posX != original_posX or enemy.posY != original_posY
 
-
-
-# verifica que se cree un enemigo correctamente y que la estrategia de movimiento sea la correcta
 def test_enemy_factory():
-    yellow_enemy = EnemyFactory.create_enemy("Yellow")
-    assert isinstance(yellow_enemy, Enemy)
-    assert isinstance(yellow_enemy.movement_strategy, StillMovement)
+    with patch("src.enemy.StillMovement", autospec=True) as mock_still_movement, \
+            patch("src.enemy.ZigZagMovement", autospec=True) as mock_zigzag_movement:
+        
+        # Yellow enemy
+        yellow_enemy = EnemyFactory.create_enemy("Yellow")
+        assert isinstance(yellow_enemy, Enemy)
+        assert yellow_enemy.movement_strategy == mock_still_movement.return_value
 
-    blue_enemy = EnemyFactory.create_enemy("Blue")
-    assert isinstance(blue_enemy, Enemy)
-    assert isinstance(blue_enemy.movement_strategy, ZigZagMovement)
+        # Blue enemy
+        blue_enemy = EnemyFactory.create_enemy("Blue")
+        assert isinstance(blue_enemy, Enemy)
+        assert blue_enemy.movement_strategy == mock_zigzag_movement.return_value
 
-    with pytest.raises(ValueError):
-        EnemyFactory.create_enemy("Invalid")
+        # Invalid enemy type
+        with pytest.raises(ValueError):
+            EnemyFactory.create_enemy("InvalidType")
+
 
 
 # verifica que se llame a la funcion move de la estrategia de movimiento correctamente
@@ -70,30 +74,35 @@ def test_enemy_position(enemy):
     assert enemy.posY >= 0
 
 def test_enemy_updateSub_Frozen(enemy):
-    enemy.updateSub("Frozen")
-    assert isinstance(enemy.movement_strategy, StillMovement)
+    with patch("src.enemy.StillMovement", autospec=True) as mock_still_movement:
+        enemy.updateSub("Frozen")
+        assert isinstance(enemy.movement_strategy, type(mock_still_movement.return_value))
 
 def test_enemy_updateSub_Limitless(enemy):
-    enemy.updateSub("Limitless")
-    assert isinstance(enemy.movement_strategy, ZigZagMovement)
+    with patch("src.enemy.ZigZagMovement", autospec=True) as mock_zigzag_movement:
+        enemy.updateSub("Limitless")
+        assert isinstance(enemy.movement_strategy, type(mock_zigzag_movement.return_value))
 
 def test_enemy_updateSub_Reset_Blue(enemy):
-    # Create a blue enemy specifically for this test
-    blue_enemy = EnemyFactory.create_enemy("Blue")
-    blue_enemy.updateSub("Reset")
-    assert isinstance(blue_enemy.movement_strategy, ZigZagMovement)
+    with patch("src.enemy.ZigZagMovement", autospec=True) as mock_zigzag_movement:
+        # Create a blue enemy specifically for this test
+        blue_enemy = EnemyFactory.create_enemy("Blue")
+        blue_enemy.updateSub("Reset")
+        assert isinstance(blue_enemy.movement_strategy, type(mock_zigzag_movement.return_value))
 
 def test_enemy_updateSub_Reset_Yellow(enemy):
-    # Create a yellow enemy specifically for this test
-    yellow_enemy = EnemyFactory.create_enemy("Yellow")
-    yellow_enemy.updateSub("Reset")
-    assert isinstance(yellow_enemy.movement_strategy, StillMovement)
+    with patch("src.enemy.StillMovement", autospec=True) as mock_still_movement:
+        # Create a yellow enemy specifically for this test
+        yellow_enemy = EnemyFactory.create_enemy("Yellow")
+        yellow_enemy.updateSub("Reset")
+        assert isinstance(yellow_enemy.movement_strategy, type(mock_still_movement.return_value))
 
 def test_enemy_updateSub_Reset_Rainbow(enemy):
-    # Create a rainbow enemy specifically for this test
-    rainbow_enemy = EnemyFactory.create_enemy("Rainbow")
-    rainbow_enemy.updateSub("Reset")
-    assert isinstance(rainbow_enemy.movement_strategy, StillMovement)
+    with patch("src.enemy.StillMovement", autospec=True) as mock_still_movement:
+        # Create a rainbow enemy specifically for this test
+        rainbow_enemy = EnemyFactory.create_enemy("Rainbow")
+        rainbow_enemy.updateSub("Reset")
+        assert isinstance(rainbow_enemy.movement_strategy, type(mock_still_movement.return_value))
 
 def test_enemy_initialization_with_type():
     yellow_enemy = EnemyFactory.create_enemy("Yellow")
