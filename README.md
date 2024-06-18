@@ -1,12 +1,12 @@
 # Road-Fighter
 
-Juego Road-Fighter programado en Python usando PyGame
+Juego basado en Road-Fighter programado en Python usando PyGame.
 
 <div id = "photo" align = "center">
     <img src="images/road_fighter_title.png" width="250px"/>
 </div>
 
-## Materia: Ingenieria del Software
+## Materia: *Ingenieria del Software*
 
 <div id="photo_2" align = "center">
     <img src="images/evil_corp_logo.png" width="250px"/>
