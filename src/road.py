@@ -6,7 +6,7 @@ class Road(Subscriber):
     def __init__(self, display):
         self.speed = 0
         self.display = display
-        self.image = pygame.image.load("images/road.png").convert()
+        self.image = pygame.image.load("../images/road.png").convert()
 
     def update(self, speed):
         self.speed += speed
@@ -21,8 +21,8 @@ class Road(Subscriber):
     def updateSub(self, powerup):
         road_path = "road.png"
         if powerup == "Reset":
-            self.image = pygame.image.load("images/" + road_path).convert()
+            self.image = pygame.image.load("../images/" + road_path).convert()
         else:
             powerup_name = str(powerup).lower()
-            self.image = pygame.image.load("images/" + powerup_name + "/" + powerup_name + "_" + road_path)
+            self.image = pygame.image.load("../images/" + powerup_name + "/" + powerup_name + "_" + road_path)
             

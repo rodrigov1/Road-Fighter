@@ -6,7 +6,7 @@ from observerp import Subscriber
 class Player(Subscriber, pygame.sprite.Sprite):
     def __init__(self, posX, posY, speed):
         super().__init__()
-        self.image = pygame.image.load("images/red_player_3.png").convert_alpha()
+        self.image = pygame.image.load("../images/red_player_3.png").convert_alpha()
         self.rect = self.image.get_rect()
         self.posX = posX
         self.posY = posY
@@ -29,7 +29,7 @@ class Player(Subscriber, pygame.sprite.Sprite):
 
     def updateHealth(self, health):
         if health > 0:
-            image_path = "images/" + str(self.color).lower() + "_player_" + str(health) + ".png"
+            image_path = "../images/" + str(self.color).lower() + "_player_" + str(health) + ".png"
             self.image = pygame.image.load(image_path).convert_alpha()
 
     def updateSub(self, powerup):

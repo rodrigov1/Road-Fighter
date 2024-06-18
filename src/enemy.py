@@ -11,11 +11,11 @@ class EnemyFactory:
     def create_enemy(enemy_type):
         match enemy_type:
             case "Yellow":
-                return Enemy(StillMovement(), "images/yellow_car.png", "Yellow")
+                return Enemy(StillMovement(), "../images/yellow_car.png", "Yellow")
             case "Blue":
-                return Enemy(ZigZagMovement(), "images/blue_car.png", "Blue")
+                return Enemy(ZigZagMovement(), "../images/blue_car.png", "Blue")
             case "Rainbow":
-                return Enemy(ZigZagMovement(), "images/rainbow_car.png", "Rainbow")
+                return Enemy(ZigZagMovement(), "../images/rainbow_car.png", "Rainbow")
             case _:
                 raise ValueError(f"Unknown enemy type: {enemy_type}")
 
@@ -58,9 +58,9 @@ class Enemy(Subscriber, pygame.sprite.Sprite):
         car_path = str(self.type).lower() + "_car.png"
         
         if powerup == "Reset":
-            image_path = "images/" + car_path
+            image_path = "../images/" + car_path
         else:
             powerup_name = str(powerup).lower()
-            image_path = "images/" + powerup_name + "/" + powerup_name + "_" + car_path
+            image_path = "../images/" + powerup_name + "/" + powerup_name + "_" + car_path
             
         self.image = pygame.image.load(image_path).convert_alpha()
