@@ -2,42 +2,76 @@ import pygame
 import random
 from player import Player
 from enemy import EnemyFactory
+from powerup import PowerUpFactory
+from observerp import Publisher
 
-class Game:
+
+class Game(Publisher):
     def __init__(self):
-        pass
-    
+        super().__init__()
+
+    def initPowerUpGroup(self):
+        powerUpGroup = pygame.sprite.Group()
+        return powerUpGroup
+
     def initPlayerGroup(self):
-        # Posicion centrada
         player = Player(400, 600, 5)
         playerGroup = pygame.sprite.Group()
         playerGroup.add(player)
-        
+        self.subscribe(player)
         return playerGroup
 
     def initEnemiesGroup(self):
         enemiesGroup = pygame.sprite.Group()
-        for _ in range(5):
-            enemy_type = random.choice(["Yellow", "Blue"])
-            enemy = EnemyFactory.create_enemy(enemy_type)
-            enemiesGroup.add(enemy)
-            
-        return enemiesGroup
-    
-    def refreshEnemies(self, frame_count, enemiesGroup):
-        if frame_count % 300 == 0:
-            new_enemies = self.initEnemiesGroup()
-            
-            for enemy in new_enemies:
-                enemiesGroup.add(enemy)
-                
         return enemiesGroup
 
-    def catchControllerEvents(self, road, playerSprite, enemiesGroup):
+    def initLivesGroup(self):
+        livesGroup = pygame.sprite.Group()
+        return livesGroup
+
+    def refreshEnemies(self, frame_count, enemiesGroup, Frozen, Limitless):
+        if frame_count % 150 == 0:
+            for _ in range(4):
+                enemy_type = random.choice(["Yellow", "Blue"])
+                enemy = EnemyFactory.create_enemy(enemy_type)
+                enemiesGroup.add(enemy)
+                self.subscribe(enemy)
+                if Frozen:
+                    self.notify("Freeze")
+                if Limitless:
+                    self.notify("Heat")
+
+        return enemiesGroup
+
+    def refreshPowerUps(self, frame_count, FreezePU, LimitlessPU):
+        if (
+            frame_count % 900 == 0
+        ):  # Add new power-up every 900 frames (15 seconds at 60 FPS)
+            power = random.choice(["Blue", "Pink"])
+            new_powerup = PowerUpFactory.create_powerup(power)
+
+            match power:
+                case "Blue":
+                    FreezePU.add(new_powerup)
+                case "Pink":
+                    LimitlessPU.add(new_powerup)
+
+        return FreezePU, LimitlessPU
+
+    def refreshLives(self, frame_count, livesGroup):
+        if frame_count % 1200 == 0:
+            live = EnemyFactory.create_enemy("Rainbow")
+            livesGroup.add(live)
+
+        return livesGroup
+
+    def catchControllerEvents(
+        self, road, playerSprite, enemiesGroup, FreezePU, LimitlessPU, livesGroup
+    ):
         keys = pygame.key.get_pressed()
         playPressed = False
         accelerated = False
-        
+
         if keys[pygame.K_ESCAPE]:
             pygame.quit()
 
@@ -53,6 +87,9 @@ class Game:
         if keys[pygame.K_z]:
             road.update(20)
             enemiesGroup.update(5)
+            FreezePU.update()
+            LimitlessPU.update()
+            livesGroup.update(5)
             accelerated = True
         else:
             enemiesGroup.update(-5)
@@ -60,8 +97,7 @@ class Game:
         return playPressed, accelerated
 
     def catchCollisions(self, playerSprite, enemiesGroup):
-        collision = pygame.sprite.spritecollide(playerSprite, enemiesGroup, False)
-        
+        collision = pygame.sprite.spritecollide(playerSprite, enemiesGroup, True)
         return collision != []
 
     def catchEvents(self):
@@ -69,18 +105,33 @@ class Game:
             if event.type == pygame.QUIT:
                 pygame.quit()
 
-    def runGame(self, screen, clock, playerGroup, enemiesGroup, road):
+    def runGame(
+        self,
+        screen,
+        clock,
+        playerGroup,
+        enemiesGroup,
+        FrozenPowerUp,
+        LimitlessPowerUp,
+        livesGroup,
+        road,
+    ):
         # Player sprite is the only sprite from playerGroup
         playerSprite = playerGroup.sprites()[0]
 
         # Inicialize variables
         gameRunning = False
-        gameOver = False
         distance = 0
         fuel = 100
+        Frozen = False
+        Frozen_Time = 0
+        Crash = False
+        Lives = 3
+        Limitless = False
+        Invincible_Time = 0
 
-        #Frame count
-        frame_count = 0
+        # Frame count
+        frame_count = 1
 
         while True:
             # Frame inicialization
@@ -90,7 +141,12 @@ class Game:
             # Events and controller
             self.catchEvents()
             playPressed, accelerated = self.catchControllerEvents(
-                road, playerSprite, enemiesGroup
+                road,
+                playerSprite,
+                enemiesGroup,
+                FrozenPowerUp,
+                LimitlessPowerUp,
+                livesGroup,
             )
 
             # Start
@@ -98,11 +154,17 @@ class Game:
                 gameRunning = True
 
             # Refresh
-            enemiesGroup = self.refreshEnemies(frame_count, enemiesGroup)
+            FrozenPowerUp, LimitlessPowerUp = self.refreshPowerUps(
+                frame_count, FrozenPowerUp, LimitlessPowerUp
+            )
+            enemiesGroup = self.refreshEnemies(
+                frame_count, enemiesGroup, Frozen, Limitless
+            )
+            livesGroup = self.refreshLives(frame_count, livesGroup)
             frame_count += 1
 
             # Gameplay
-            if gameRunning and not gameOver:
+            if gameRunning and Lives > 0:
 
                 # In Acceleration
                 if accelerated:
@@ -113,10 +175,56 @@ class Game:
                 road.draw()
                 enemiesGroup.draw(screen)
                 playerGroup.draw(screen)
+                FrozenPowerUp.draw(screen)
+                LimitlessPowerUp.draw(screen)
+                livesGroup.draw(screen)
 
-                # Game collisions
-                gameOver = self.catchCollisions(playerSprite, enemiesGroup)
-            else :
+                # Game collisions with enemies/obstacles
+                Crash = self.catchCollisions(playerSprite, enemiesGroup)
+                Rainbow_Car_Crash = self.catchCollisions(playerSprite, livesGroup)
+                FreezePU_Crash = self.catchCollisions(playerSprite, FrozenPowerUp)
+                LimitlessPU_Crash = self.catchCollisions(playerSprite, LimitlessPowerUp)
+
+                if LimitlessPU_Crash:
+                    Invincible_Time = 600
+                    Limitless = True
+                    self.notify("Heat")
+
+                if Limitless:
+                    Invincible_Time -= 1
+
+                    if Invincible_Time <= 0:
+                        Lives = 3
+                        self.notify("Reset")
+                        playerSprite.updateHealth(Lives)
+                        Limitless = False
+
+                if Rainbow_Car_Crash:
+                    Lives += 1
+                    if Lives > 3:
+                        Lives = 3
+                    playerSprite.updateHealth(Lives)
+
+                if Crash and not Limitless:
+                    Lives -= 1
+                    playerSprite.updateHealth(Lives)
+
+                # Frozen Time Power Up Effects
+                if FreezePU_Crash:
+                    Frozen = True
+                    Frozen_Time = 600
+                    self.notify("Freeze")
+                    playerSprite.updateHealth(Lives)
+
+                if Frozen:
+                    Frozen_Time -= 1
+
+                    if Frozen_Time <= 0:
+                        self.notify("Reset")
+                        playerSprite.updateHealth(Lives)
+                        Frozen = False
+
+            else:
                 return False
 
             pygame.display.flip()
