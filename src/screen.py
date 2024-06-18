@@ -20,17 +20,17 @@ class Screen:
         pygame.init()
         pygame.display.set_caption("Road Fighter")
         clock = pygame.time.Clock()
-        icon = pygame.image.load("../images/car-icon.png")
+        icon = pygame.image.load("images/car-icon.png")
         pygame.display.set_icon(icon)
 
         return DISPLAY, clock
 
     def startScreen(self):
-        menu_image = pygame.image.load("../images/start_menu.png")
+        menu_image = pygame.image.load("images/start_menu.png")
         self.displayScreen(menu_image)
 
     def endScreen(self):
-        menu_image = pygame.image.load("../images/game_over.png")
+        menu_image = pygame.image.load("images/game_over.png")
         self.displayScreen(menu_image)
 
     def displayScreen(self, menu_image):

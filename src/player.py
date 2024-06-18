@@ -6,7 +6,7 @@ from observerp import Subscriber
 class Player(Subscriber, pygame.sprite.Sprite):
     def __init__(self, posX, posY, speed):
         super().__init__()
-        self.image = pygame.image.load("../images/red_car.png").convert_alpha()
+        self.image = pygame.image.load("images/red_player_3.png").convert_alpha()
         self.rect = self.image.get_rect()
         self.posX = posX
         self.posY = posY
@@ -28,40 +28,15 @@ class Player(Subscriber, pygame.sprite.Sprite):
         self.rect.center = (self.posX, self.posY)
 
     def updateHealth(self, health):
-        if self.color == "Red":
-            match health:
-                case 3:
-                    self.image = pygame.image.load(
-                        "../images/red_car.png"
-                    ).convert_alpha()
-                case 2:
-                    self.image = pygame.image.load(
-                        "../images/red_car_1.png"
-                    ).convert_alpha()
-                case 1:
-                    self.image = pygame.image.load(
-                        "../images/red_car_2.png"
-                    ).convert_alpha()
-        else:
-            match health:
-                case 3:
-                    self.image = pygame.image.load(
-                        "../images/dark_blue_car.png"
-                    ).convert_alpha()
-                case 2:
-                    self.image = pygame.image.load(
-                        "../images/dark_blue_car_1.png"
-                    ).convert_alpha()
-                case 1:
-                    self.image = pygame.image.load(
-                        "../images/dark_blue_car_2.png"
-                    ).convert_alpha()
+        if health > 0:
+            image_path = "images/" + str(self.color).lower() + "_player_" + str(health) + ".png"
+            self.image = pygame.image.load(image_path).convert_alpha()
 
     def updateSub(self, powerup):
         match powerup:
-            case "Freeze":
+            case "Frozen":
                 self.color = "Blue"
-            case "Heat":
-                self.image = pygame.image.load("../images/pink_car.png").convert_alpha()
+            case "Limitless":
+                self.color = "Pink"
             case "Reset":
                 self.color = "Red"

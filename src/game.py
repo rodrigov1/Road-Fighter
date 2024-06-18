@@ -1,5 +1,6 @@
 import pygame
 import random
+from road import Road
 from player import Player
 from enemy import EnemyFactory
 from powerup import PowerUpFactory
@@ -9,6 +10,11 @@ from observerp import Publisher
 class Game(Publisher):
     def __init__(self):
         super().__init__()
+        
+    def initRoad(self, display):
+        road = Road(display)
+        self.subscribe(road)
+        return road
 
     def initPowerUpGroup(self):
         powerUpGroup = pygame.sprite.Group()
@@ -31,22 +37,21 @@ class Game(Publisher):
 
     def refreshEnemies(self, frame_count, enemiesGroup, Frozen, Limitless):
         if frame_count % 150 == 0:
-            for _ in range(4):
+            for _ in range(12 if Limitless else 4):
                 enemy_type = random.choice(["Yellow", "Blue"])
                 enemy = EnemyFactory.create_enemy(enemy_type)
                 enemiesGroup.add(enemy)
                 self.subscribe(enemy)
+                
                 if Frozen:
-                    self.notify("Freeze")
+                    self.notify("Frozen", enemy)
                 if Limitless:
-                    self.notify("Heat")
+                    self.notify("Limitless", enemy)
 
         return enemiesGroup
 
     def refreshPowerUps(self, frame_count, FreezePU, LimitlessPU):
-        if (
-            frame_count % 900 == 0
-        ):  # Add new power-up every 900 frames (15 seconds at 60 FPS)
+        if (frame_count % 900 == 0):  # Add new power-up every 900 frames (15 seconds at 60 FPS)
             power = random.choice(["Blue", "Pink"])
             new_powerup = PowerUpFactory.create_powerup(power)
 
@@ -65,9 +70,7 @@ class Game(Publisher):
 
         return livesGroup
 
-    def catchControllerEvents(
-        self, road, playerSprite, enemiesGroup, FreezePU, LimitlessPU, livesGroup
-    ):
+    def catchControllerEvents(self, road, playerSprite, enemiesGroup, FreezePU, LimitlessPU, livesGroup):
         keys = pygame.key.get_pressed()
         playPressed = False
         accelerated = False
@@ -111,8 +114,8 @@ class Game(Publisher):
         clock,
         playerGroup,
         enemiesGroup,
-        FrozenPowerUp,
-        LimitlessPowerUp,
+        freezePowerUp,
+        limitlessPowerUp,
         livesGroup,
         road,
     ):
@@ -128,7 +131,7 @@ class Game(Publisher):
         Crash = False
         Lives = 3
         Limitless = False
-        Invincible_Time = 0
+        Limitless_Time = 0
 
         # Frame count
         frame_count = 1
@@ -144,8 +147,8 @@ class Game(Publisher):
                 road,
                 playerSprite,
                 enemiesGroup,
-                FrozenPowerUp,
-                LimitlessPowerUp,
+                freezePowerUp,
+                limitlessPowerUp,
                 livesGroup,
             )
 
@@ -154,13 +157,14 @@ class Game(Publisher):
                 gameRunning = True
 
             # Refresh
-            FrozenPowerUp, LimitlessPowerUp = self.refreshPowerUps(
-                frame_count, FrozenPowerUp, LimitlessPowerUp
+            freezePowerUp, limitlessPowerUp = self.refreshPowerUps(
+                frame_count, freezePowerUp, limitlessPowerUp
             )
             enemiesGroup = self.refreshEnemies(
                 frame_count, enemiesGroup, Frozen, Limitless
             )
             livesGroup = self.refreshLives(frame_count, livesGroup)
+            
             frame_count += 1
 
             # Gameplay
@@ -175,34 +179,33 @@ class Game(Publisher):
                 road.draw()
                 enemiesGroup.draw(screen)
                 playerGroup.draw(screen)
-                FrozenPowerUp.draw(screen)
-                LimitlessPowerUp.draw(screen)
+                freezePowerUp.draw(screen)
+                limitlessPowerUp.draw(screen)
                 livesGroup.draw(screen)
 
                 # Game collisions with enemies/obstacles
                 Crash = self.catchCollisions(playerSprite, enemiesGroup)
-                Rainbow_Car_Crash = self.catchCollisions(playerSprite, livesGroup)
-                FreezePU_Crash = self.catchCollisions(playerSprite, FrozenPowerUp)
-                LimitlessPU_Crash = self.catchCollisions(playerSprite, LimitlessPowerUp)
+                RainbowCar_Crash = self.catchCollisions(playerSprite, livesGroup)
+                FreezePU_Crash = self.catchCollisions(playerSprite, freezePowerUp)
+                LimitlessPU_Crash = self.catchCollisions(playerSprite, limitlessPowerUp)
 
+                # Power Ups Effects
                 if LimitlessPU_Crash:
-                    Invincible_Time = 600
+                    Limitless_Time = 600
                     Limitless = True
-                    self.notify("Heat")
+                    self.notifyAll("Limitless")
+                    playerSprite.updateHealth(Lives)
 
                 if Limitless:
-                    Invincible_Time -= 1
+                    Limitless_Time -= 1
 
-                    if Invincible_Time <= 0:
-                        Lives = 3
-                        self.notify("Reset")
+                    if Limitless_Time <= 0:
+                        self.notifyAll("Reset")
                         playerSprite.updateHealth(Lives)
                         Limitless = False
 
-                if Rainbow_Car_Crash:
+                if RainbowCar_Crash and Lives < 3:
                     Lives += 1
-                    if Lives > 3:
-                        Lives = 3
                     playerSprite.updateHealth(Lives)
 
                 if Crash and not Limitless:
@@ -213,14 +216,14 @@ class Game(Publisher):
                 if FreezePU_Crash:
                     Frozen = True
                     Frozen_Time = 600
-                    self.notify("Freeze")
+                    self.notifyAll("Frozen")
                     playerSprite.updateHealth(Lives)
 
                 if Frozen:
                     Frozen_Time -= 1
 
                     if Frozen_Time <= 0:
-                        self.notify("Reset")
+                        self.notifyAll("Reset")
                         playerSprite.updateHealth(Lives)
                         Frozen = False
 
