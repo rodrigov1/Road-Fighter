@@ -391,3 +391,42 @@ def test_runGame(
     assert mock_catchCollisions.call_count == 4
     mock_flip.assert_called_once()
 
+@patch.object(Game, "refreshEnemies")
+def test_refreshEnemies_called(
+    mock_refreshEnemies,
+    game,
+):
+    mock_enemiesGroup = Mock()
+
+    # Simular la llamada al método
+    game.refreshEnemies()
+
+    # Verificar que el método fue llamado
+    mock_refreshEnemies.assert_called_once()
+
+@patch.object(Game, "refreshPowerUps")
+def test_refreshPowerUps_called(
+    mock_refreshPowerUps,
+    game,
+):
+    mock_FrozenPowerUp = Mock()
+    mock_LimitlessPowerUp = Mock()
+
+    # Simular la llamada al método
+    game.refreshPowerUps()
+
+    # Verificar que el método fue llamado
+    mock_refreshPowerUps.assert_called_once()
+
+@patch.object(Game, "refreshLives")
+def test_refreshLives_called(
+    mock_refreshLives,
+    game,
+):
+    mock_livesGroup = Mock()
+
+    # Simular la llamada al método
+    game.refreshLives()
+
+    # Verificar que el método fue llamado
+    mock_refreshLives.assert_called_once()
