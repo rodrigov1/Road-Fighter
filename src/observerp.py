@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 
 class Subscriber(ABC):
     @abstractmethod
-    def updateSub(self):
+    def updateSub(self, powerup):
         raise NotImplementedError("This method should be overridden by subclasses")
 
 
@@ -17,6 +17,9 @@ class Publisher:
         else:
             raise TypeError("Listener must be an instance of Subscriber")
 
-    def notify(self):
+    def notifyAll(self, powerup):
         for listener in self.listeners:
-            listener.updateSub()
+            listener.updateSub(powerup)
+        
+    def notify(self, powerup, listener):
+        listener.updateSub(powerup)

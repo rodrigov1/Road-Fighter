@@ -10,6 +10,7 @@ def player():
         mock_load.return_value = Mock()  # Mock the image returned by pygame
         return Player(250, 300, 10)
 
+
 def test_player_initialization(player):
     assert player.posX == 250
     assert player.posY == 300
@@ -48,6 +49,7 @@ def test_player_update_method_calls(player):
 
     player.update("left")
     assert player.update.call_count == 2
+
 
 #La posicion no deberia cambiar si la direccion es invalida
 def test_player_update_invalid_direction(player):
