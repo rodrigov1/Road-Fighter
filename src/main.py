@@ -7,8 +7,8 @@ if __name__ == "__main__":
     def Start():
         screen = Screen()
         display, clock = screen.startEngine()
-        road = Road(display)
         road_fighter = Game()
+        road = road_fighter.initRoad(display)
         playerGroup = road_fighter.initPlayerGroup()
         enemiesGroup = road_fighter.initEnemiesGroup()
         FrozenPowerUp = road_fighter.initPowerUpGroup()

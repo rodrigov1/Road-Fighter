@@ -43,37 +43,24 @@ class Enemy(Subscriber, pygame.sprite.Sprite):
 
     def updateSub(self, powerup):
         match powerup:
-            case "Freeze":
-                if self.type == "Blue":
-                    self.movement_strategy = StillMovement()
-                    self.image = pygame.image.load(
-                        "../images/frozen/frozen_blue_car.png"
-                    ).convert_alpha()
-                else:
-                    self.image = pygame.image.load(
-                        "../images/frozen/frozen_yellow_car.png"
-                    ).convert_alpha()
-
-            case "Heat":
-                if self.type == "Blue":
-                    self.image = pygame.image.load(
-                        "../images/hot/grey_blue_car.png"
-                    ).convert_alpha()
-                else:
-                    self.image = pygame.image.load(
-                        "../images/hot/grey_yellow_car.png"
-                    ).convert_alpha()
-
+            case "Frozen":
+                self.movement_strategy = StillMovement()
+            case "Limitless":
+                self.movement_strategy = ZigZagMovement()
             case "Reset":
                 if self.type == "Blue":
                     self.movement_strategy = ZigZagMovement()
-                    self.image = pygame.image.load(
-                        "../images/blue_car.png"
-                    ).convert_alpha()
                 else:
-                    self.image = pygame.image.load(
-                        "../images/yellow_car.png"
-                    ).convert_alpha()
-
+                    self.movement_strategy = StillMovement()
             case _:
                 pass
+        
+        car_path = str(self.type).lower() + "_car.png"
+        
+        if powerup == "Reset":
+            image_path = "../images/" + car_path
+        else:
+            powerup_name = str(powerup).lower()
+            image_path = "../images/" + powerup_name + "/" + powerup_name + "_" + car_path
+            
+        self.image = pygame.image.load(image_path).convert_alpha()

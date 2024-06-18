@@ -17,6 +17,9 @@ class Publisher:
         else:
             raise TypeError("Listener must be an instance of Subscriber")
 
-    def notify(self, powerup):
+    def notifyAll(self, powerup):
         for listener in self.listeners:
             listener.updateSub(powerup)
+        
+    def notify(self, powerup, listener):
+        listener.updateSub(powerup)
