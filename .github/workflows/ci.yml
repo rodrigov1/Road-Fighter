@@ -13,7 +13,8 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     defaults:
-      working-directory: ./src/
+      run:
+        working-directory: ./src/
 
     steps:
       - name: Checkout code
