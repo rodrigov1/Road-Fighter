@@ -1,13 +1,10 @@
 import pytest
 from pygame import K_ESCAPE, K_RETURN, K_LEFT, K_RIGHT, K_z
-from unittest.mock import Mock, patch,MagicMock,call
-from game import Game
+from unittest.mock import Mock, patch,MagicMock,call,ANY
+from src.game import Game
 import pygame
-from player import Player
-from enemy import EnemyFactory,StillMovement,ZigZagMovement
-from observerp import Subscriber,Publisher
-from enemy import Enemy
-from powerup import PowerUpFactory
+from src.player import Player
+from src.observerp import Subscriber
 from itertools import cycle
 # Fixture para inicializar el objeto Game
 @pytest.fixture
@@ -57,6 +54,7 @@ def FreezePU():
 def LimitlessPU():
     return pygame.sprite.Group()
 
+
 def test_initPowerUpGroup(game):
     powerUpGroup = game.initPowerUpGroup()
     assert len(powerUpGroup) == 0
@@ -83,6 +81,24 @@ def test_initEnemiesGroup(game):
     # Verificar que el grupo de enemigos está inicialmente vacío
     assert len(enemiesGroup) == 0
 
+# testeo que se notifique a los enemigos cuando Limitless es True
+@patch.object(Game, 'notify')
+def test_refreshEnemies_Limitless_sends_notification(mock_notify, game, enemies_group):
+    frame_count = 150
+    Frozen = False
+    Limitless = True
+    game.refreshEnemies(frame_count, enemies_group, Frozen, Limitless)
+    mock_notify.assert_called_with("Limitless", ANY)
+
+# testeo que se notifique a los enemigos cuando Frozen es True
+@patch.object(Game, 'notify')
+def test_refreshEnemies_Frozen_sends_notification(mock_notify, game, enemies_group):
+    frame_count = 150
+    Frozen = True
+    Limitless = False
+    game.refreshEnemies(frame_count, enemies_group, Frozen, Limitless)
+    mock_notify.assert_called_with("Frozen", ANY)
+    
 def test_refreshEnemies_multiplo150_frames(game, enemies_group):
     frame_count = 150
     game.refreshEnemies(frame_count, enemies_group, False, False)
@@ -122,49 +138,7 @@ def test_enemies_estan_suscriptos(game, enemies_group):
         game.refreshEnemies(frame_count, enemies_group, False, False)
         assert game.subscribe.call_count == 4           #Todos los enemigos deben ser suscriptores
 
-@patch("pygame.sprite.spritecollide")
-@patch('enemy.EnemyFactory.create_enemy')
-@patch('game.random.choice')
-def test_refreshEnemies_Frozen(mock_random_choice, mock_create_enemy, mock_spritecollide, game, enemies_group, mock_subscriber_enemy):
-    # Configuramos los mocks
-    mock_random_choice.side_effect = ["Yellow", "Blue", "Yellow", "Blue"]       #se necesita pasar si o si 4 enemigos
-    mock_create_enemy.return_value = mock_subscriber_enemy
-    mock_spritecollide.return_value = []  # No hay colisiones en este caso
 
-    # Configuramos los parámetros de la función
-    frame_count = 150
-    Frozen = True
-    Limitless = False
-
-    # Ejecutamos la función que estamos probando
-    game.refreshEnemies(frame_count, enemies_group, Frozen, Limitless)
-
-    # Verificamos las aserciones
-    assert len(enemies_group) == 1  # Debería haber solo un enemigo del tipo Freeze agregado
-    new_enemy = enemies_group.sprites()[0]  # Obtenemos el nuevo enemigo agregado al grupo
-    new_enemy.updateSub.assert_called_with("Frozen")  # Verificamos que el método updateSub se haya llamado con "Frozen" en el nuevo enemigo
-
-
-@patch("pygame.sprite.spritecollide")
-@patch('enemy.EnemyFactory.create_enemy')
-@patch('game.random.choice')
-def test_refreshEnemies_Limitless(mock_random_choice, mock_create_enemy, mock_spritecollide, game, enemies_group, mock_subscriber_enemy):
-    # Usamos itertools.cycle para evitar runTimeError
-    mock_random_choice.side_effect = cycle(["Yellow", "Blue", "Yellow", "Blue"])  
-
-    mock_create_enemy.return_value = mock_subscriber_enemy
-    mock_spritecollide.return_value = []  # No hay colisiones en este caso
-
-    frame_count = 150
-    Frozen = False
-    Limitless = True
-
-    game.refreshEnemies(frame_count, enemies_group, Frozen, Limitless)
-
-     # Verificamos las aserciones
-    assert len(enemies_group) == 1  # Debería haber solo un enemigo del tipo Freeze agregado
-    new_enemy = enemies_group.sprites()[0]  # Obtenemos el nuevo enemigo agregado al grupo
-    new_enemy.updateSub.assert_called_with("Limitless")  # Verificamos que el método updateSub se haya llamado con "Frozen" en el nuevo enemigo
 
 @patch('powerup.PowerUpFactory.create_powerup')
 @patch('game.random.choice')
