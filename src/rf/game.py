@@ -197,6 +197,7 @@ class Game(Publisher):
                 if LimitlessPU_Crash:
                     Limitless_Time = 600
                     Limitless = True
+                    Lives = 3
                     self.notifyAll("Limitless")
                     playerSprite.updateHealth(Lives)
 

@@ -35,6 +35,6 @@ frozen_road = os.path.join(images_dir, "frozen_road.png")
 frozen_bluecar = os.path.join(images_dir, "frozen_blue_car.png")
 frozen_yellowcar = os.path.join(images_dir, "frozen_yellow_car.png")
 
-limitless_road = os.path.join(images_dir, "limitless_road.png.png")
+limitless_road = os.path.join(images_dir, "limitless_road.png")
 limitless_bluecar = os.path.join(images_dir, "limitless_blue_car.png")
 limitless_yellowcar = os.path.join(images_dir, "limitless_yellow_car.png")
