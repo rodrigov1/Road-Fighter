@@ -2,7 +2,6 @@ import pygame
 from screen import ROAD_LEFT_BORDER, ROAD_RIGHT_BORDER
 from observerp import Subscriber
 
-
 class Player(Subscriber, pygame.sprite.Sprite):
     def __init__(self, posX, posY, speed):
         super().__init__()

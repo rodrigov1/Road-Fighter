@@ -23,16 +23,22 @@ Juego basado en Road-Fighter programado en Python usando PyGame.
 
 1. Install all the dependencies:
 
-Open the terminal and run the next command:
+Open the terminal on the project folder and run the next command:
 
-```python
-> pip install -r requirements.txt
+```bash
+pip install -r requirements.txt
 ```
 
 2. Run the file *run.py*:
 
 You can do this on the terminal using the next command:
 
-```python
-> python3 run.py
+```bash
+python3 run.py
+```
+
+Or inside the src folder, run the next command:
+
+```bash
+python3 main.py
 ```
