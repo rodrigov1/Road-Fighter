@@ -1,30 +1,34 @@
 import pytest
-from pygame import K_ESCAPE, K_RETURN, K_LEFT, K_RIGHT, K_z
-from unittest.mock import Mock, patch,MagicMock,call,ANY
-from src.game import Game
 import pygame
-from src.player import Player
-from src.observerp import Subscriber
+from pygame import K_ESCAPE, K_RETURN, K_LEFT, K_RIGHT, K_z
+from unittest.mock import Mock, patch, MagicMock, call, ANY
+from rf.game import Game
+from rf.player import Player
+from rf.observerp import Subscriber
 from itertools import cycle
+
+
 # Fixture para inicializar el objeto Game
 @pytest.fixture
 def game():
-    game=Game()
+    game = Game()
     return game
+
 
 # Fixture para inicializar un grupo de enemigos vacío
 @pytest.fixture
 def enemies_group():
-    enemies_group=pygame.sprite.Group()
+    enemies_group = pygame.sprite.Group()
     return enemies_group
+
 
 # Fixture para inicializar un jugador
 @pytest.fixture
 def player():
-    with patch('pygame.image.load') as mock_load:
+    with patch("pygame.image.load") as mock_load:
         mock_load.return_value = Mock()  # Mock the image returned by pygame
         return Player(400, 600, 5)
-    
+
 
 # Fixture para inicializar un grupo de jugadores
 @pytest.fixture
@@ -33,11 +37,13 @@ def player_group(player):
     playerGroup.add(player)
     return playerGroup
 
-#Fixture para inicializar un enemigo
+
+# Fixture para inicializar un enemigo
 @pytest.fixture
 def mock_enemy():
     mock_enemy = Mock(spec=pygame.sprite.Sprite)
     return mock_enemy
+
 
 # Fixture para inicializar un enemigo suscrito
 @pytest.fixture
@@ -46,9 +52,11 @@ def mock_subscriber_enemy():
     mock_subscriber_enemy.add_internal = MagicMock()
     return mock_subscriber_enemy
 
+
 @pytest.fixture
 def FreezePU():
     return pygame.sprite.Group()
+
 
 @pytest.fixture
 def LimitlessPU():
@@ -60,29 +68,33 @@ def test_initPowerUpGroup(game):
     assert len(powerUpGroup) == 0
 
 
-@patch('pygame.sprite.Group')
+@patch("pygame.sprite.Group")
 def test_initPlayerGroup(mock_group, game):
     # Configura el Mock para simular un comportamiento específico si es necesario
     mock_group_instance = mock_group.return_value
-    mock_group_instance.__len__.return_value = 1  # Simula que hay un elemento en el grupo
+    mock_group_instance.__len__.return_value = (
+        1  # Simula que hay un elemento en el grupo
+    )
 
     playerGroup = game.initPlayerGroup()
 
     assert mock_group.called  # Verifica que Group fue llamado para crear playerGroup
     assert len(playerGroup) == 1  # Ahora esto debería pasar
 
+
 def test_initEnemiesGroup(game):
     # Llamada a la función que queremos probar
     enemiesGroup = game.initEnemiesGroup()
-    
+
     # Verificar que se retorna un objeto pygame.sprite.Group
     assert isinstance(enemiesGroup, pygame.sprite.Group)
-    
+
     # Verificar que el grupo de enemigos está inicialmente vacío
     assert len(enemiesGroup) == 0
 
+
 # testeo que se notifique a los enemigos cuando Limitless es True
-@patch.object(Game, 'notify')
+@patch.object(Game, "notify")
 def test_refreshEnemies_Limitless_sends_notification(mock_notify, game, enemies_group):
     frame_count = 150
     Frozen = False
@@ -90,76 +102,108 @@ def test_refreshEnemies_Limitless_sends_notification(mock_notify, game, enemies_
     game.refreshEnemies(frame_count, enemies_group, Frozen, Limitless)
     mock_notify.assert_called_with("Limitless", ANY)
 
+
 # testeo que se notifique a los enemigos cuando Frozen es True
-@patch.object(Game, 'notify')
+@patch.object(Game, "notify")
 def test_refreshEnemies_Frozen_sends_notification(mock_notify, game, enemies_group):
     frame_count = 150
     Frozen = True
     Limitless = False
     game.refreshEnemies(frame_count, enemies_group, Frozen, Limitless)
     mock_notify.assert_called_with("Frozen", ANY)
-    
+
+
 def test_refreshEnemies_multiplo150_frames(game, enemies_group):
     frame_count = 150
     game.refreshEnemies(frame_count, enemies_group, False, False)
-    assert len(enemies_group) == 4 #Deberían agregarse 4 enemigos cada 150 frames
+    assert len(enemies_group) == 4  # Deberían agregarse 4 enemigos cada 150 frames
 
     frame_count = 299  # No es múltiplo de 150, no se agregan nuevos enemigos
     game.refreshEnemies(frame_count, enemies_group, False, False)
-    assert len(enemies_group) == 4 #No se deben agregar enemigos si el frame_count no es múltiplo de 150
+    assert (
+        len(enemies_group) == 4
+    )  # No se deben agregar enemigos si el frame_count no es múltiplo de 150
 
     frame_count = 300  # Siguiente múltiplo de 150, se agregan nuevos enemigos
     game.refreshEnemies(frame_count, enemies_group, False, False)
-    assert len(enemies_group) == 8 #Deberían agregarse 4 enemigos adicionales en el frame 300
+    assert (
+        len(enemies_group) == 8
+    )  # Deberían agregarse 4 enemigos adicionales en el frame 300
 
-@patch('enemy.EnemyFactory.create_enemy')
-@patch('game.random.choice')
-def test_refreshEnemies_no_multiplo150_frames(mock_random_choice, mock_create_enemy, game, enemies_group, mock_subscriber_enemy):
-    mock_random_choice.side_effect = ["Yellow", "Blue", "Yellow", "Blue"]       #se necesita pasar si o si 4 enemigos
+
+@patch("rf.enemy.EnemyFactory.create_enemy")
+@patch("rf.game.random.choice")
+def test_refreshEnemies_no_multiplo150_frames(
+    mock_random_choice, mock_create_enemy, game, enemies_group, mock_subscriber_enemy
+):
+    mock_random_choice.side_effect = [
+        "Yellow",
+        "Blue",
+        "Yellow",
+        "Blue",
+    ]  # se necesita pasar si o si 4 enemigos
     mock_create_enemy.return_value = mock_subscriber_enemy
 
-    frame_count = 149                                                           #pero el frame_count no es multiplo de 150 por lo que aun no se crean los enemigos
+    frame_count = 149  # pero el frame_count no es multiplo de 150 por lo que aun no se crean los enemigos
     game.refreshEnemies(frame_count, enemies_group, False, False)
 
     assert len(enemies_group) == 0
     mock_create_enemy.assert_not_called()
 
+
 def test_enemy_types_created(game, enemies_group):
     frame_count = 150
     game.refreshEnemies(frame_count, enemies_group, False, False)
     enemy_types = {enemy.type for enemy in enemies_group}
-    assert enemy_types.issubset({'Yellow', 'Blue', 'Rainbow'}) #Solo deberian crearse enemigos de tipo 'Yellow', 'Blue' y 'Rainbow'
+    assert enemy_types.issubset(
+        {"Yellow", "Blue", "Rainbow"}
+    )  # Solo deberian crearse enemigos de tipo 'Yellow', 'Blue' y 'Rainbow'
+
 
 def test_enemies_estan_suscriptos(game, enemies_group):
     frame_count = 150
     mock_enemy = Mock(spec=pygame.sprite.Sprite)
-    with patch('enemy.EnemyFactory.create_enemy', return_value=mock_enemy):
+    with patch("rf.enemy.EnemyFactory.create_enemy", return_value=mock_enemy):
         game.subscribe = MagicMock()
         game.refreshEnemies(frame_count, enemies_group, False, False)
-        assert game.subscribe.call_count == 4           #Todos los enemigos deben ser suscriptores
+        assert (
+            game.subscribe.call_count == 4
+        )  # Todos los enemigos deben ser suscriptores
 
 
-
-@patch('powerup.PowerUpFactory.create_powerup')
-@patch('game.random.choice')
-def test_refreshPowerUps_cada_900frames(mock_random_choice, mock_create_powerup, game,FreezePU, LimitlessPU):
+@patch("rf.powerup.PowerUpFactory.create_powerup")
+@patch("rf.game.random.choice")
+def test_refreshPowerUps_cada_900frames(
+    mock_random_choice, mock_create_powerup, game, FreezePU, LimitlessPU
+):
     mock_random_choice.side_effect = ["Blue", "Pink"]
     mock_powerup = Mock(spec=pygame.sprite.Sprite)
     mock_create_powerup.return_value = mock_powerup
 
     frame_count = 900
-    FreezePU, LimitlessPU = game.refreshPowerUps(frame_count, FreezePU, LimitlessPU)    #Llamo al metodo a probar 
-    assert len(FreezePU) == 1 #Debería agregar un power-up de Freeze cada 900 frames
-    assert len(LimitlessPU) == 0 #No debería agregar un power-up de Limitless en los primeros 900 frames
+    FreezePU, LimitlessPU = game.refreshPowerUps(
+        frame_count, FreezePU, LimitlessPU
+    )  # Llamo al metodo a probar
+    assert len(FreezePU) == 1  # Debería agregar un power-up de Freeze cada 900 frames
+    assert (
+        len(LimitlessPU) == 0
+    )  # No debería agregar un power-up de Limitless en los primeros 900 frames
 
     frame_count = 1800
     FreezePU, LimitlessPU = game.refreshPowerUps(frame_count, FreezePU, LimitlessPU)
-    assert len(FreezePU) == 1 #No debería agregar un power-up de Freeze adicional en los segundos 900 frames
-    assert len(LimitlessPU) == 1 #Debería agregar un power-up de Limitless en los segundos 900 frames
+    assert (
+        len(FreezePU) == 1
+    )  # No debería agregar un power-up de Freeze adicional en los segundos 900 frames
+    assert (
+        len(LimitlessPU) == 1
+    )  # Debería agregar un power-up de Limitless en los segundos 900 frames
 
-@patch('powerup.PowerUpFactory.create_powerup')
-@patch('game.random.choice')
-def test_refreshPowerUps_not900frames(mock_random_choice, mock_create_powerup, game,FreezePU, LimitlessPU):
+
+@patch("rf.powerup.PowerUpFactory.create_powerup")
+@patch("rf.game.random.choice")
+def test_refreshPowerUps_not900frames(
+    mock_random_choice, mock_create_powerup, game, FreezePU, LimitlessPU
+):
     mock_random_choice.side_effect = ["Blue", "Pink"]
     mock_powerup = Mock(spec=pygame.sprite.Sprite)
     mock_create_powerup.return_value = mock_powerup
@@ -167,12 +211,19 @@ def test_refreshPowerUps_not900frames(mock_random_choice, mock_create_powerup, g
     frame_count = 899  # Not a multiple of 900, no power-ups should be added
 
     FreezePU, LimitlessPU = game.refreshPowerUps(frame_count, FreezePU, LimitlessPU)
-    assert len(FreezePU) == 0   #No se deberia agregar y que los frame_count no son multiplos de 900
-    assert len(LimitlessPU) == 0 #No se deberia agregar y que los frame_count no son multiplos de 900
+    assert (
+        len(FreezePU) == 0
+    )  # No se deberia agregar y que los frame_count no son multiplos de 900
+    assert (
+        len(LimitlessPU) == 0
+    )  # No se deberia agregar y que los frame_count no son multiplos de 900
 
-@patch('powerup.PowerUpFactory.create_powerup')
-@patch('game.random.choice')
-def test_powerup_types_created(mock_random_choice, mock_create_powerup, game,FreezePU, LimitlessPU):
+
+@patch("rf.powerup.PowerUpFactory.create_powerup")
+@patch("rf.game.random.choice")
+def test_powerup_types_created(
+    mock_random_choice, mock_create_powerup, game, FreezePU, LimitlessPU
+):
     mock_random_choice.side_effect = ["Blue", "Pink"]
     mock_powerup = Mock(spec=pygame.sprite.Sprite)
     mock_create_powerup.return_value = mock_powerup
@@ -180,15 +231,22 @@ def test_powerup_types_created(mock_random_choice, mock_create_powerup, game,Fre
     frame_count = 900
 
     FreezePU, LimitlessPU = game.refreshPowerUps(frame_count, FreezePU, LimitlessPU)
-    assert mock_random_choice.call_args_list == [call(["Blue", "Pink"])]  #se tendrian que haber llamado a uno de estos dos tipos de powerups
+    assert mock_random_choice.call_args_list == [
+        call(["Blue", "Pink"])
+    ]  # se tendrian que haber llamado a uno de estos dos tipos de powerups
 
-    #En este caso el tests no deberia ser igual a estos valores
+    # En este caso el tests no deberia ser igual a estos valores
     FreezePU, LimitlessPU = game.refreshPowerUps(frame_count, FreezePU, LimitlessPU)
-    assert not mock_random_choice.call_args_list == [call(["Azul", "Rosa"])]  #Estos powerups no existen por lo tanto no se llama a la funcion
+    assert not mock_random_choice.call_args_list == [
+        call(["Azul", "Rosa"])
+    ]  # Estos powerups no existen por lo tanto no se llama a la funcion
 
-@patch('powerup.PowerUpFactory.create_powerup')
-@patch('game.random.choice')
-def test_refreshPowerUps_correcta_adicion(mock_random_choice, mock_create_powerup, game,FreezePU, LimitlessPU):
+
+@patch("rf.powerup.PowerUpFactory.create_powerup")
+@patch("rf.game.random.choice")
+def test_refreshPowerUps_correcta_adicion(
+    mock_random_choice, mock_create_powerup, game, FreezePU, LimitlessPU
+):
     mock_random_choice.side_effect = ["Blue", "Pink"]
     mock_powerup_blue = Mock(spec=pygame.sprite.Sprite)
     mock_powerup_pink = Mock(spec=pygame.sprite.Sprite)
@@ -196,27 +254,32 @@ def test_refreshPowerUps_correcta_adicion(mock_random_choice, mock_create_poweru
 
     frame_count = 900
     FreezePU, LimitlessPU = game.refreshPowerUps(frame_count, FreezePU, LimitlessPU)
-    assert FreezePU.sprites()[0] == mock_powerup_blue #el powerup azul se deberia haber agredo a FreezePU
+    assert (
+        FreezePU.sprites()[0] == mock_powerup_blue
+    )  # el powerup azul se deberia haber agredo a FreezePU
 
     frame_count = 1800
     FreezePU, LimitlessPU = game.refreshPowerUps(frame_count, FreezePU, LimitlessPU)
-    assert LimitlessPU.sprites()[0] == mock_powerup_pink #el powerup rosa se deberia haber agredo a LimitlessPU
+    assert (
+        LimitlessPU.sprites()[0] == mock_powerup_pink
+    )  # el powerup rosa se deberia haber agredo a LimitlessPU
 
 
-@patch('pygame.sprite.spritecollide', return_value=True)
+@patch("pygame.sprite.spritecollide", return_value=True)
 def test_catchCollisions_FreezePU(mock_spritecollide, game):
     playerSprite = MagicMock()
     FreezePU = game.initPowerUpGroup()
     assert game.catchCollisions(playerSprite, FreezePU) == True
 
-@patch('pygame.sprite.spritecollide', return_value=True)
+
+@patch("pygame.sprite.spritecollide", return_value=True)
 def test_catchCollisions_Limitless(mock_spritecollide, game):
     playerSprite = MagicMock()
     LimitlessPU = game.initPowerUpGroup()
     assert game.catchCollisions(playerSprite, LimitlessPU) == True
 
 
-@patch('pygame.sprite.spritecollide')
+@patch("pygame.sprite.spritecollide")
 def test_catchCollisions(mock_spritecollide, game):
     mock_spritecollide.return_value = [Mock()]
     collision = game.catchCollisions(Mock(), Mock())
@@ -233,7 +296,7 @@ def test_catchControllerEvents(mock_quit, mock_get_pressed, game):
         K_RIGHT: 0,
         K_z: 0,
     }
-    game.catchControllerEvents(Mock(), Mock(), Mock(),Mock(), Mock(), Mock())
+    game.catchControllerEvents(Mock(), Mock(), Mock(), Mock(), Mock(), Mock())
     mock_get_pressed.assert_called_once()
     mock_quit.assert_called_once()
 
@@ -241,7 +304,7 @@ def test_catchControllerEvents(mock_quit, mock_get_pressed, game):
 @patch("pygame.key.get_pressed")
 def test_catchControllerEvents_simple(mock_get_pressed, game):
     game.catchControllerEvents(
-        Mock(), Mock(), Mock(),Mock(), Mock(), Mock()
+        Mock(), Mock(), Mock(), Mock(), Mock(), Mock()
     )  # llamo a la funcion catchControllerEvents
     mock_get_pressed.assert_called_once()  # verifico que solo se haya llamado una vez a la funcion get_pressed
 
@@ -251,7 +314,7 @@ def test_catchControllerEvents_simple(mock_get_pressed, game):
 def test_catchControllerEvents_escape(mock_quit, mock_get_pressed, game):
     keys = {K_ESCAPE: 1, K_RETURN: 0, K_LEFT: 0, K_RIGHT: 0, K_z: 0}
     mock_get_pressed.return_value = keys
-    game.catchControllerEvents(Mock(), Mock(), Mock(),Mock(), Mock(), Mock())
+    game.catchControllerEvents(Mock(), Mock(), Mock(), Mock(), Mock(), Mock())
     mock_quit.assert_called_once()
 
 
@@ -259,7 +322,9 @@ def test_catchControllerEvents_escape(mock_quit, mock_get_pressed, game):
 def test_catchControllerEvents_return(mock_get_pressed, game):
     keys = {K_ESCAPE: 0, K_RETURN: 1, K_LEFT: 0, K_RIGHT: 0, K_z: 0}
     mock_get_pressed.return_value = keys
-    playPressed, accelerated = game.catchControllerEvents(Mock(), Mock(), Mock(),Mock(), Mock(), Mock())
+    playPressed, accelerated = game.catchControllerEvents(
+        Mock(), Mock(), Mock(), Mock(), Mock(), Mock()
+    )
     assert playPressed
     assert not accelerated
 
@@ -269,7 +334,9 @@ def test_catchControllerEvents_left(mock_get_pressed, game):
     keys = {K_ESCAPE: 0, K_RETURN: 0, K_LEFT: 1, K_RIGHT: 0, K_z: 0}
     mock_get_pressed.return_value = keys
     mock_playerSprite = Mock()
-    game.catchControllerEvents(Mock(), mock_playerSprite, Mock(),Mock(), Mock(), Mock())
+    game.catchControllerEvents(
+        Mock(), mock_playerSprite, Mock(), Mock(), Mock(), Mock()
+    )
     mock_playerSprite.update.assert_called_once_with("left")
 
 
@@ -278,7 +345,9 @@ def test_catchControllerEvents_right(mock_get_pressed, game):
     keys = {K_ESCAPE: 0, K_RETURN: 0, K_LEFT: 0, K_RIGHT: 1, K_z: 0}
     mock_get_pressed.return_value = keys
     mock_playerSprite = Mock()
-    game.catchControllerEvents(Mock(), mock_playerSprite, Mock(),Mock(), Mock(), Mock())
+    game.catchControllerEvents(
+        Mock(), mock_playerSprite, Mock(), Mock(), Mock(), Mock()
+    )
     mock_playerSprite.update.assert_called_once_with("right")
 
 
@@ -286,9 +355,12 @@ def test_catchControllerEvents_right(mock_get_pressed, game):
 def test_catchControllerEvents_z(mock_get_pressed, game):
     keys = {K_ESCAPE: 0, K_RETURN: 0, K_LEFT: 0, K_RIGHT: 0, K_z: 1}
     mock_get_pressed.return_value = keys
-    playPressed, accelerated = game.catchControllerEvents(Mock(), Mock(), Mock(),Mock(), Mock(), Mock())
+    playPressed, accelerated = game.catchControllerEvents(
+        Mock(), Mock(), Mock(), Mock(), Mock(), Mock()
+    )
     assert not playPressed
     assert accelerated
+
 
 @patch("pygame.display.flip")
 @patch("pygame.time.Clock")
@@ -365,6 +437,7 @@ def test_runGame(
     assert mock_catchCollisions.call_count == 4
     mock_flip.assert_called_once()
 
+
 @patch.object(Game, "refreshEnemies")
 def test_refreshEnemies_called(
     mock_refreshEnemies,
@@ -377,6 +450,7 @@ def test_refreshEnemies_called(
 
     # Verificar que el método fue llamado
     mock_refreshEnemies.assert_called_once()
+
 
 @patch.object(Game, "refreshPowerUps")
 def test_refreshPowerUps_called(
@@ -391,6 +465,7 @@ def test_refreshPowerUps_called(
 
     # Verificar que el método fue llamado
     mock_refreshPowerUps.assert_called_once()
+
 
 @patch.object(Game, "refreshLives")
 def test_refreshLives_called(
